@@ -2,6 +2,7 @@
 
 SUBDIRS = \
  rapidxml \
+ node \
  .
 
 noinst_HEADERS =

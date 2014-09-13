@@ -47,6 +47,9 @@ AC_CONFIG_FILES([Makefile
 		 sources/Makefile
 		 sources/include/Makefile
 		 sources/include/rapidxml/Makefile
+		 sources/include/node/Makefile
+		 sources/lib/Makefile
+		 sources/lib/node/Makefile
 		 sources/src/Makefile])
 
 # I like maintainer mode

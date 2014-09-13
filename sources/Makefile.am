@@ -2,6 +2,7 @@
 
 SUBDIRS = \
 	  include \
+	  lib \
 	  src \
 	  .
 
