@@ -42,7 +42,8 @@ FUMA_AX_ASTYLE([2.03])
 AX_CXX_COMPILE_STDCXX_11([noext],[mandatory])
 
 # Checks for library functions.
-AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([Makefile
+		 doc/Makefile])
 
 # I like maintainer mode
 AM_MAINTAINER_MODE

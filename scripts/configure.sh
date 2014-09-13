@@ -18,8 +18,7 @@ SCRIPT=$(abspath ${0})
 SCRIPTPATH=`dirname ${SCRIPT}`
 ROOTPATH=`dirname ${SCRIPTPATH}`
 export PROJECT_ROOT=${ROOTPATH}
-export PROJECT_NAME="rapidxml"
-export PROJECT_USER="rapidxml"
+export PROJECT_NAME="RapidXML"
 
 #  CC          C compiler command
 #  CFLAGS      C compiler flags

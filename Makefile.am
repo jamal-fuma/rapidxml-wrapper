@@ -4,7 +4,8 @@ AM_DISTCHECK_CONFIGURE_FLAGS =
 ACLOCAL_AMFLAGS = -I m4
 
 SUBDIRS = \
- .
+  doc \
+  .
 
 EXTRA_DIST = \
  m4 \
