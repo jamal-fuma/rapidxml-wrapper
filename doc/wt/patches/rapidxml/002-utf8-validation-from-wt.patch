@@ -1,0 +1,298 @@
+--- rapidxml-1.13/rapidxml.hpp	2014-09-13 19:23:05.000000000 +0100
++++ rapidxml-1.13-patched/rapidxml.hpp	2014-09-13 19:23:05.000000000 +0100
+@@ -13,6 +13,8 @@
+ #include <new>          // For placement new
+ #endif
+ 
++#include <boost/lexical_cast.hpp>
++
+ // On MSVC, disable "conditional expression is constant" warning (level 4).
+ // This warning is almost impossible to avoid with certain types of templated code
+ #ifdef _MSC_VER
+@@ -74,9 +76,9 @@ namespace rapidxml
+         public:
+ 
+             //! Constructs parse error
+-            parse_error(const char * what, void * where)
++            parse_error(const char * what, void * location)
+                 : m_what(what)
+-                , m_where(where)
++                , m_where(location)
+             {
+             }
+ 
+@@ -192,6 +194,9 @@ namespace rapidxml
+     //! See xml_document::parse() function.
+     const int parse_no_utf8 = 0x10;
+ 
++    //! Parse flag instructing the parser to validate the UTF-8 stream.
++    const int parse_validate_utf8 = 0x2000;
++
+     //! Parse flag instructing the parser to create XML declaration node.
+     //! By default, declaration node is not created.
+     //! Can be combined with other flags by use of | operator.
+@@ -1506,6 +1511,7 @@ namespace rapidxml
+                 }
+             };
+ 
++        public:
+             // Insert coded character, using UTF8 or 8-bit ASCII
+             template<int Flags>
+             static void insert_coded_character(Ch *& text, unsigned long code)
+@@ -1554,18 +1560,171 @@ namespace rapidxml
+                     }
+                     else    // Invalid, only codes up to 0x10FFFF are allowed in Unicode
+                     {
+-                        RAPIDXML_PARSE_ERROR("invalid numeric character entity", text);
++                        RAPIDXML_PARSE_ERROR
++                        (("invalid numeric character entity: "
++                          + boost::lexical_cast<std::string>(code)).c_str(), 0);
++                    }
++                }
++            }
++
++            static void copy_check_utf8(const Ch *& src, Ch *& dest)
++            {
++                // skip entire UTF-8 encoded characters at once,
++                // checking their validity based on
++                // http://www.dwheeler.com/secure-programs/Secure-Programs-HOWTO/character-encoding.html (5.9.4 column 3)
++
++                unsigned length = 1;
++                bool legal = false;
++                if((unsigned char)src[0] <= 0x7F)
++                {
++                    unsigned char c = src[0];
++                    if(c == 0x09 || c == 0x0A || c == 0x0D || c >= 0x20)
++                        legal = true;
++                }
++                else if((unsigned char)src[0] >= 0xF0)
++                {
++                    length = 4;
++
++                    if((
++                                // F0 90-BF 80-BF 80-BF
++                                ((unsigned char)src[0] == 0xF0) &&
++                                (0x90 <= (unsigned char)src[1] &&
++                                 (unsigned char)src[1] <= 0xBF) &&
++                                (0x80 <= (unsigned char)src[2] &&
++                                 (unsigned char)src[2] <= 0xBF) &&
++                                (0x80 <= (unsigned char)src[3] &&
++                                 (unsigned char)src[3] <= 0xBF)
++                            ) ||
++                            (
++                                // F1-F3 80-BF 80-BF 80-BF
++                                (0xF1 <= (unsigned char)src[0] &&
++                                 (unsigned char)src[0] <= 0xF3) &&
++                                (0x80 <= (unsigned char)src[1] &&
++                                 (unsigned char)src[1] <= 0xBF) &&
++                                (0x80 <= (unsigned char)src[2] &&
++                                 (unsigned char)src[2] <= 0xBF) &&
++                                (0x80 <= (unsigned char)src[3] &&
++                                 (unsigned char)src[3] <= 0xBF)
++                            ))
++                        legal = true;
++
++                }
++                else if((unsigned char)src[0] >= 0xE0)
++                {
++                    length = 3;
++
++                    if((
++                                // E0 A0*-BF 80-BF
++                                ((unsigned char)src[0] == 0xE0) &&
++                                (0xA0 <= (unsigned char)src[1] &&
++                                 (unsigned char)src[1] <= 0xBF) &&
++                                (0x80 <= (unsigned char)src[2] &&
++                                 (unsigned char)src[2] <= 0xBF)
++                            ) ||
++                            (
++                                // E1-EF 80-BF 80-BF
++                                (0xE1 <= (unsigned char)src[0] &&
++                                 (unsigned char)src[0] <= 0xF1) &&
++                                (0x80 <= (unsigned char)src[1] &&
++                                 (unsigned char)src[1] <= 0xBF) &&
++                                (0x80 <= (unsigned char)src[2] &&
++                                 (unsigned char)src[2] <= 0xBF)
++                            ))
++                        legal = true;
++
++                }
++                else if((unsigned char)src[0] >= 0xC0)
++                {
++                    length = 2;
++
++                    if(
++                        // C2-DF 80-BF
++                        (0xC2 <= (unsigned char)src[0] &&
++                         (unsigned char)src[0] <= 0xDF) &&
++                        (0x80 <= (unsigned char)src[1] &&
++                         (unsigned char)src[1] <= 0xBF)
++                    )
++                        legal = true;
++                }
++
++                if(legal)
++                {
++                    if(dest)
++                    {
++                        if(length == 3)
++                        {
++                            /*
++                              U+2028 and U+2029 may cause problems, they are line
++                              separators that mess up JavaScript string literals.
++                              We will replace them here by '\n'.
++                             */
++                            if((unsigned char)src[0] == 0xe2 &&
++                                    (unsigned char)src[1] == 0x80 &&
++                                    ((unsigned char)src[2] == 0xa8 ||
++                                     (unsigned char)src[2] == 0xa9))
++                            {
++                                *dest++ = '\n';
++                                src += length;
++                            }
++                            else
++                                for(unsigned i = 0; i < length; ++i)
++                                    *dest++ = *src++;
++                        }
++                        else
++                            for(unsigned i = 0; i < length; ++i)
++                                *dest++ = *src++;
++                    }
++                    else
++                        src += length;
++                }
++                else
++                {
++                    if(dest)
++                        if(length >= 3)
++                        {
++                            /* insert U+FFFD, the replacement character */
++                            *dest++ = (Ch)0xef;
++                            *dest++ = (Ch)0xbf;
++                            *dest++ = (Ch)0xbd;
++                            src += length;
++                        }
++                        else
++                            for(unsigned i = 0; i < length; ++i)
++                            {
++                                *dest++ = '?';
++                                src++;
++                            }
++                    else
++                    {
++                        const Ch * problem_src = src;
++                        src += length;
++                        RAPIDXML_PARSE_ERROR("Invalid UTF-8 sequence",
++                                             const_cast<Ch *>(problem_src));
+                     }
+                 }
+             }
+ 
++        private:
++            template<int Flags>
++            static void next_char(Ch *& text)
++            {
++                if(Flags & parse_validate_utf8)
++                {
++                    Ch * dest = 0;
++                    copy_check_utf8(const_cast<const Ch *& >(text), dest);
++                }
++                else
++                    ++text;
++            }
++
+             // Skip characters until predicate evaluates to true
+             template<class StopPred, int Flags>
+             static void skip(Ch *& text)
+             {
+                 Ch * tmp = text;
+                 while(StopPred::test(*tmp))
+-                    ++tmp;
++                    next_char<Flags>(tmp);
++
+                 text = tmp;
+             }
+ 
+@@ -1714,8 +1873,10 @@ namespace rapidxml
+                     }
+ 
+                     // No replacement, only copy character
+-                    *dest++ = *src++;
+-
++                    if(Flags & parse_validate_utf8)
++                        copy_check_utf8(const_cast<const Ch *& >(src), dest);
++                    else
++                        *dest++ = *src++;
+                 }
+ 
+                 // Return new end
+@@ -2017,7 +2178,7 @@ namespace rapidxml
+                     {
+                         if(!text[0])
+                             RAPIDXML_PARSE_ERROR("unexpected end of data", text);
+-                        ++text;
++                        next_char<Flags>(text);
+                     }
+                     text += 3;      // Skip ]]>
+                     return 0;       // Do not produce CDATA node
+@@ -2029,7 +2190,7 @@ namespace rapidxml
+                 {
+                     if(!text[0])
+                         RAPIDXML_PARSE_ERROR("unexpected end of data", text);
+-                    ++text;
++                    next_char<Flags>(text);
+                 }
+ 
+                 // Create new cdata node
+@@ -2166,7 +2327,7 @@ namespace rapidxml
+                     {
+                         if(*text == 0)
+                             RAPIDXML_PARSE_ERROR("unexpected end of data", text);
+-                        ++text;
++                        next_char<Flags>(text);
+                     }
+                     ++text;     // Skip '>'
+                     return 0;   // No node recognized
+@@ -2183,7 +2344,8 @@ namespace rapidxml
+                 {
+                     // Skip whitespace between > and node contents
+                     Ch * contents_start = text;     // Store start of node contents before whitespace is skipped
+-                    skip<whitespace_pred, Flags>(text);
++                    if(Flags & parse_normalize_whitespace)
++                        skip<whitespace_pred, Flags>(text);
+                     Ch next_char = *text;
+ 
+                     // After data nodes, instead of continuing the loop, control jumps here.
+@@ -2385,7 +2547,7 @@ after_data_node:
+         };
+ 
+         // Text (i.e. PCDATA) that does not require processing when ws normalization is disabled
+-        // (anything but < \0 &)
++        // (anything but < \0 & 0xe2 (for U+2028, U+2029))
+         template<int Dummy>
+         const unsigned char lookup_tables<Dummy>::lookup_text_pure_no_ws[256] =
+         {
+@@ -2404,12 +2566,12 @@ after_data_node:
+             1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  // B
+             1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  // C
+             1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  // D
+-            1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  // E
++            1,  1,  0,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  // E
+             1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1   // F
+         };
+ 
+         // Text (i.e. PCDATA) that does not require processing when ws normalizationis is enabled
+-        // (anything but < \0 & space \n \r \t)
++        // (anything but < \0 & space \n \r \t 0xe2 (for U+2028, U+2029))
+         template<int Dummy>
+         const unsigned char lookup_tables<Dummy>::lookup_text_pure_with_ws[256] =
+         {
+@@ -2428,7 +2590,7 @@ after_data_node:
+             1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  // B
+             1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  // C
+             1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  // D
+-            1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  // E
++            1,  1,  0,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  // E
+             1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1   // F
+         };
+ 
