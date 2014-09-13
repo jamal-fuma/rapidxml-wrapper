@@ -11,7 +11,8 @@ noinst_LTLIBRARIES = \
 #noinst_HEADERS =
 
 libNode_la_SOURCES = \
- Util.cpp
+ Util.cpp \
+ QualifiedName.cpp
 
 libNode_la_LIBADD = \
  $(LINKER_LIBS)
