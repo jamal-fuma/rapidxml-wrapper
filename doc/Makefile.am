@@ -4,7 +4,8 @@ docdir 		= $(datadir)/doc
 # ship rapidxml license
 doc_rapidxmldir = $(docdir)/rapidxml
 doc_rapidxml_DATA = \
-	$(top_srcdir)/doc/rapidxml/licence.txt
+	$(top_srcdir)/doc/rapidxml/licence.txt \
+	$(top_srcdir)/doc/rapidxml/manual.txt
 
 # ship boost license
 doc_boostdir = $(docdir)/boost
