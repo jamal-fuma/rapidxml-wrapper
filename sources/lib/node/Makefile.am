@@ -12,6 +12,7 @@ noinst_LTLIBRARIES = \
 
 libNode_la_SOURCES = \
  Util.cpp \
+ XML.cpp \
  QualifiedName.cpp
 
 libNode_la_LIBADD = \

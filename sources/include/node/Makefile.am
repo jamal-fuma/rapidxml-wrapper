@@ -5,7 +5,9 @@ SUBDIRS = \
 
 noinst_HEADERS = \
 	Util.hpp \
-	QualifiedName.hpp
+	XML.hpp \
+	QualifiedName.hpp \
+	Type.hpp
 
 MAINTAINERCLEANFILES = \
  $(top_srcdir)/sources/include/node/Makefile.in

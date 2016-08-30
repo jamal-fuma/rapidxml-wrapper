@@ -20,10 +20,16 @@ WARNING_FLAGS= \
  -Wcast-qual\
  -Wwrite-strings
 
-COMPILE_FLAGS = $(INCLUDE_DIRS) $(SOURCE_DEFINES) $(WARNING_FLAGS)
+COMPILE_FLAGS = $(INCLUDE_DIRS) \
+		$(BOOST_CPPFLAGS) \
+		$(COVERAGE_CFLAGS) \
+		$(SOURCE_DEFINES) $(WARNING_FLAGS)
 
-LINKER_FLAGS= -lboost_iostreams -lboost_filesystem -lboost_system -rdynamic
+LINKER_FLAGS= -rdynamic
 
 LINKER_LIBS=
 
-
+LINKER_LIBS		= $(BOOST_SYSTEM_LIB) -lboost_iostreams\
+				  $(BOOST_PROGRAM_OPTIONS_LIB) \
+				  $(BOOST_REGEX_LIB) \
+				  $(BOOST_FILESYSTEM_LIB)

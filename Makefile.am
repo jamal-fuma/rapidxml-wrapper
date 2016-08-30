@@ -6,12 +6,21 @@ ACLOCAL_AMFLAGS = -I m4
 SUBDIRS = \
   doc \
   sources \
+  tests \
   .
 
 EXTRA_DIST = \
  m4 \
  build-aux \
  scripts
+
+TESTS = \
+		tests/include/test_node_type$(EXEEXT) \
+		\
+		tests/lib/test_qualified_name$(EXEEXT) \
+		\
+		tests/src/test_parser$(EXEEXT)
+
 
 MAINTAINERCLEANFILES = \
  $(top_srcdir)/config.h.in~ \

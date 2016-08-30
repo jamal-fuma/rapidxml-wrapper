@@ -11,6 +11,7 @@ rss_xml_SOURCES = \
  Main.cpp
 
 rss_xml_LDADD = \
+ $(top_builddir)/sources/lib/node/libNode.la \
  $(LINKER_LIBS)
 
 MAINTAINERCLEANFILES = \

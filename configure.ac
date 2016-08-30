@@ -41,6 +41,14 @@ FUMA_AX_ASTYLE([2.03])
 # enable what ever the local equivilent of --std=c++11
 AX_CXX_COMPILE_STDCXX_11([noext],[mandatory])
 
+# pull in boost
+AX_BOOST_BASE([1.48],, [AC_MSG_ERROR([Boost was not found in your system])])
+AX_BOOST_SYSTEM
+AX_BOOST_PROGRAM_OPTIONS
+AX_BOOST_UNIT_TEST_FRAMEWORK
+AX_BOOST_REGEX
+AX_BOOST_FILESYSTEM
+
 # Checks for library functions.
 AC_CONFIG_FILES([Makefile
 		 doc/Makefile
@@ -50,7 +58,11 @@ AC_CONFIG_FILES([Makefile
 		 sources/include/node/Makefile
 		 sources/lib/Makefile
 		 sources/lib/node/Makefile
-		 sources/src/Makefile])
+		 sources/src/Makefile
+		 tests/Makefile
+		 tests/include/Makefile
+		 tests/lib/Makefile
+		 tests/src/Makefile])
 
 # I like maintainer mode
 AM_MAINTAINER_MODE

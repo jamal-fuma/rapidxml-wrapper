@@ -11,6 +11,10 @@
 // RapidXML
 #include "rapidxml/rapidxml.hpp"
 
+#include "node/Type.hpp"
+
+Node::XML::ElementNode element;
+
 int main(int argc, char * argv[])
 {
     if(argc < 2)
