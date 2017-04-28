@@ -4,6 +4,7 @@ SUBDIRS = \
  .
 
 noinst_HEADERS = \
+	xml_s3.hpp \
 	Util.hpp \
 	XML.hpp \
 	QualifiedName.hpp \

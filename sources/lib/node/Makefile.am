@@ -11,6 +11,7 @@ noinst_LTLIBRARIES = \
 #noinst_HEADERS =
 
 libNode_la_SOURCES = \
+ xml_s3.cpp \
  DOMTree.cpp \
  Element.cpp \
  QualifiedName.cpp \
