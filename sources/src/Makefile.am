@@ -1,5 +1,8 @@
 # sources/src/Makefile.am
 
+SUBDIRS = \
+ .
+
 include $(top_srcdir)/build-aux/source_common.mk
 
 AM_LDFLAGS = $(LINKER_FLAGS)

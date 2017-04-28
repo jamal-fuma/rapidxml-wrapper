@@ -8,7 +8,7 @@ noinst_HEADERS = \
 
 check_PROGRAMS = \
  test_node_type
- 
+
 include $(top_srcdir)/build-aux/test_common.mk
 
 TESTS = \

@@ -1,26 +1,24 @@
 # Makefile.am
-AM_DISTCHECK_CONFIGURE_FLAGS =
+AM_DISTCHECK_CONFIGURE_FLAGS = --with-ccache=yes
 
 ACLOCAL_AMFLAGS = -I m4
 
+BUILT_SOURCES = ChangeLog
+
 SUBDIRS = \
-  doc \
-  sources \
-  tests \
-  .
+ doc \
+ assets \
+ sources \
+ tests \
+ .
 
 EXTRA_DIST = \
  m4 \
  build-aux \
- scripts
-
-TESTS = \
-		tests/include/test_node_type$(EXEEXT) \
-		\
-		tests/lib/test_qualified_name$(EXEEXT) \
-		\
-		tests/src/test_parser$(EXEEXT)
-
+ scripts \
+ autogen.sh \
+ ChangeLog \
+ VERSION
 
 MAINTAINERCLEANFILES = \
  $(top_srcdir)/config.h.in~ \
@@ -44,5 +42,19 @@ MAINTAINERCLEANFILES = \
  $(top_srcdir)/m4/lt~obsolete.m4 \
  $(top_srcdir)/m4/ltoptions.m4
 
+# include Coverage targets
+include $(top_srcdir)/build-aux/gcov.mk
+
+# include ChangeLog target
+include $(top_srcdir)/build-aux/changelog.mk
+
+# include VERSION target
+include $(top_srcdir)/build-aux/version.mk
+
 # include astyle targets
 include $(top_srcdir)/build-aux/astyle.mk
+
+dist-hook: ChangeLog VERSION
+
+CLEANFILES=ChangeLog VERSION
+DISTCLEANFILES=ChangeLog VERSION

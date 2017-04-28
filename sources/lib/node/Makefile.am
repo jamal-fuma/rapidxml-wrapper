@@ -11,9 +11,11 @@ noinst_LTLIBRARIES = \
 #noinst_HEADERS =
 
 libNode_la_SOURCES = \
+ DOMTree.cpp \
+ Element.cpp \
+ QualifiedName.cpp \
  Util.cpp \
- XML.cpp \
- QualifiedName.cpp
+ XML.cpp
 
 libNode_la_LIBADD = \
  $(LINKER_LIBS)

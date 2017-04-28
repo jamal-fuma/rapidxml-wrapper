@@ -1,18 +1,27 @@
 # Process this file with autoconf to produce a configure script.
-AC_PREREQ([2.69])
-AC_INIT([RapidXML], [0.0.1], [bugs@llist.com])
+AC_PREREQ([2.68])
+
+m4_define([project_version_str], m4_esyscmd_s([cat build-aux/VERSION]))
+m4_define([project_name_str], m4_esyscmd_s([cat build-aux/PROJECT]))
+m4_define([project_email_str], m4_esyscmd_s([cat build-aux/SUPPORT_EMAIL]))
+
+AC_INIT(m4_translit(project_name_str,[ ], [_]),
+        m4_translit(project_version_str, [:], [.]),
+        [project_email_str])
 
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
 
 # location of additional build machinary
 AC_CONFIG_HEADERS([config.h])
-AC_CONFIG_SRCDIR([scripts/configure.sh])
+AC_SUBST([ACLOCAL_AMFLAGS], ["-I $ac_macro_dir \${ACLOCAL_FLAGS} --install"])
+AC_CONFIG_SRCDIR([Makefile.am])
 
-# enabling subdir-objects will require folding all makefiles into a single makefile to preserve full paths
-# and keep the lcov support working
+# setup automake
 AM_INIT_AUTOMAKE([1.10 no-define foreign tar-pax subdir-objects])
 
+# enable maintainer mode
+AM_MAINTAINER_MODE
 # allow for silent builds in older version of automake 12.04 lts cough
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES])
 
@@ -23,23 +32,49 @@ AC_DEFUN([AC_PROG_OBJC], [:])
 AC_DEFUN([AC_PROG_OBJCCPP], [:])
 AC_DEFUN([AC_LIBTOOL_F77], [:])
 
+# use platform extensions
+AC_USE_SYSTEM_EXTENSIONS
+AX_CXX_COMPILE_STDCXX_14([noext],[mandatory])
+
 # Checks for programs.
-FUMA_AX_STANDARD_PROGRAMS
-
-# Checks for typedefs, structures, and compiler characteristics.
-FUMA_AX_STANDARD_TYPES
-
-# Checks for libraries.
-FUMA_AX_CANONICAL_HOST
-
-# support a non-optimised debug build
-FUMA_AX_DEBUG
+AC_PROG_CPP
+AC_PROG_CC
+AC_PROG_CXX
+AC_PROG_GREP
+AC_PROG_SED
+AC_PROG_AWK
+AC_PROG_INSTALL
+AC_PROG_LN_S
+dnl prefer gmake to bsd make
+AC_CHECK_PROGS([MAKE], [gmake make])
+AC_PROG_MKDIR_P
+AC_PROG_LIBTOOL
+AC_MINGW32
 
 # check if we can format code nicely
-FUMA_AX_ASTYLE([2.03])
+FUMA_AX_ASTYLE([2.05])
 
-# enable what ever the local equivilent of --std=c++11
-AX_CXX_COMPILE_STDCXX_11([noext],[mandatory])
+# Check if we can use compiler caching
+FUMA_AX_CCACHE
+# check if we can do code coverage
+AC_TDD_GCOV
+# workout what platform we are building for
+FUMA_AX_CANONICAL_HOST
+
+# enable debug builds
+FUMA_AX_DEBUG
+
+# check for platform minimal requirments
+FUMA_AX_PLATFORM_TYPES
+# Checks for header files.
+AC_HEADER_STDBOOL
+AC_HEADER_TIME
+AC_HEADER_STDC
+AC_CHECK_HEADERS([limits.h execinfo.h ucontext.h])
+# find the platform threading library
+#
+# fixme: mingw requires -mthreads in PTHREAD_CFLAGS
+AX_PTHREAD
 
 # pull in boost
 AX_BOOST_BASE([1.48],, [AC_MSG_ERROR([Boost was not found in your system])])
@@ -48,23 +83,22 @@ AX_BOOST_PROGRAM_OPTIONS
 AX_BOOST_UNIT_TEST_FRAMEWORK
 AX_BOOST_REGEX
 AX_BOOST_FILESYSTEM
+AX_BOOST_IOSTREAMS
 
-# Checks for library functions.
+# generate the output
 AC_CONFIG_FILES([Makefile
-		 doc/Makefile
-		 sources/Makefile
-		 sources/include/Makefile
-		 sources/include/rapidxml/Makefile
-		 sources/include/node/Makefile
-		 sources/lib/Makefile
-		 sources/lib/node/Makefile
-		 sources/src/Makefile
-		 tests/Makefile
-		 tests/include/Makefile
-		 tests/lib/Makefile
-		 tests/src/Makefile])
-
-# I like maintainer mode
-AM_MAINTAINER_MODE
+                 doc/Makefile
+                 assets/Makefile
+                 sources/Makefile
+                 sources/include/Makefile
+                 sources/include/rapidxml/Makefile
+                 sources/include/node/Makefile
+                 sources/lib/Makefile
+                 sources/lib/node/Makefile
+                 sources/src/Makefile
+                 tests/Makefile
+                 tests/include/Makefile
+                 tests/lib/Makefile
+                 tests/src/Makefile])
 
 AC_OUTPUT

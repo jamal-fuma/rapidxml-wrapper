@@ -5,6 +5,7 @@ SUBDIRS = \
  node \
  .
 
+# headers that should be distributed but not installed
 noinst_HEADERS =
 
 MAINTAINERCLEANFILES = \
