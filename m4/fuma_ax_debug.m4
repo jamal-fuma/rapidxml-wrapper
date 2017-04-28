@@ -1,3 +1,13 @@
+dnl (c) FumaSoftware 2012
+dnl
+dnl Platform detection for autotools
+dnl
+dnl Copying and distribution of this file, with or without modification,
+dnl are permitted in any medium without royalty provided the copyright
+dnl notice and this notice are preserved.  This file is offered as-is,
+dnl without any warranty.
+dnl
+dnl platform detection
 AC_DEFUN([FUMA_AX_DEBUG],[dnl
 #---------------------------------------------------------------
 # FUMA_AX_DEBUG start
