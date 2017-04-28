@@ -2494,14 +2494,14 @@ namespace rapidxml
                     {
                         skip<whitespace_pred, Flags>(text);
                     }
-                    Ch next_char = *text;
+                    Ch next_char_x = *text;
                     // After data nodes, instead of continuing the loop, control jumps here.
                     // This is because zero termination inside parse_and_append_data() function
                     // would wreak havoc with the above code.
                     // Also, skipping whitespace after data nodes is unnecessary.
 after_data_node:
                     // Determine what comes next: node closing, child node, data node, or 0?
-                    switch(next_char)
+                    switch(next_char_x)
                     {
                     // Node closing or child node
                     case Ch('<'):
@@ -2548,7 +2548,7 @@ after_data_node:
                         RAPIDXML_PARSE_ERROR("unexpected end of data", text);
                     // Data node
                     default:
-                        next_char = parse_and_append_data<Flags>(node, text, contents_start);
+                        next_char_x = parse_and_append_data<Flags>(node, text, contents_start);
                         goto after_data_node;   // Bypass regular processing after data nodes
                     }
                 }
