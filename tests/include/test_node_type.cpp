@@ -1,12 +1,12 @@
 #if defined(HAVE_CONFIG_H)
-#include "config.h"
+    #include "config.h"
 #endif
 
 #include "TestHelper.hpp"
 #include "node/Type.hpp"
 
 struct FixtureData
-        : Node::Test::Fixture
+    : Fuma::Test::Fixture
 {
 
 };

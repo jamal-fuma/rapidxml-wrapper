@@ -1,24 +1,22 @@
-#ifndef NODE_TEST_HELPER_HPP
-#define NODE_TEST_HELPER_HPP
+#ifndef FUMA_TEST_HELPER_HPP
+#define FUMA_TEST_HELPER_HPP
 
-// C library
+#if defined(HAVE_CONFIG_H)
+    #include "config.h"
+#endif
+
+#include <boost/test/unit_test.hpp>
 #include <assert.h>
+#include <boost/lexical_cast.hpp>
+#include <boost/filesystem.hpp>
 
-// STL
 #include <iterator>
 #include <iostream>
-#include <sstream>
 #include <fstream>
 
-// Boost
-#include <boost/test/unit_test.hpp>
-#include <boost/test/mock_object.hpp>
-
-#include <boost/filesystem.hpp>
-#include <boost/iostreams/device/mapped_file.hpp>
-#include <boost/lexical_cast.hpp>
-
-namespace Node
+#include <vector>
+#include <stdlib.h>
+namespace Fuma
 {
     namespace Test
     {
@@ -27,34 +25,39 @@ namespace Node
             public:
                 // setup
                 Fixture()
+                    : m_data{}
                 {
-                    // setup fixture data members
+                    // setup per test fixture data
                 }
 
                 // teardown
-                ~Fixture() {}
-
-                std::string
-                fixture_datafile(const std::string & filename)
+                ~Fixture()
                 {
-                    if(!boost::filesystem::exists(filename.c_str()))
-                    {
-                        std::ostringstream ss;
-                        ss << "File not found: " << filename << "\n";
-                        throw std::logic_error(ss.str());
-                    }
+                    // cleanup per test fixture data
+                }
 
-                    boost::iostreams::mapped_file region(
-                        filename,
-                        boost::iostreams::mapped_file::readonly
-                    );
-
-                    return std::string(region.const_data(),region.size());
+                // test helpers
+                std::string fixture_load(const std::string & fname)
+                {
+                    // glue paths together
+                    boost::filesystem::path full_path(FIXTURES_DIR);
+                    full_path /= fname.c_str();
+                    // get a suitable string
+                    std::string abs_fname =
+                        boost::filesystem::canonical(full_path).string();
+                    uintmax_t size = boost::filesystem::file_size(full_path);
+                    // read the file into the vector
+                    std::vector<char>(size).swap(m_data);
+                    std::ifstream input(abs_fname.c_str());
+                    input.read(&m_data[0], size);
+                    return abs_fname;
                 }
 
                 // public data the testcases can use
+                std::vector<char> m_data;
         };
-    } // Node::Test namespace
-} // Node namespace
 
-#endif /* ndef NODE_TEST_HELPER_HPP */
+    } // Fuma::Test namespace
+} // Fuma namespace
+
+#endif /* ndef FUMA_TEST_HELPER_HPP */

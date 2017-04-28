@@ -1,12 +1,12 @@
 #if defined(HAVE_CONFIG_H)
-#include "config.h"
+    #include "config.h"
 #endif
 
 #include "TestHelper.hpp"
 #include "node/Util.hpp"
 
 struct FixtureData
-        : Node::Test::Fixture
+    : Fuma::Test::Fixture
 {
 
 };
@@ -18,7 +18,6 @@ BOOST_AUTO_TEST_CASE(should_default_construct)
     try
     {
         Node::Util::RequiredFields<1> fields;
-
         BOOST_REQUIRE(!fields.valid());
         fields.set(0);
         BOOST_REQUIRE(fields.valid());
