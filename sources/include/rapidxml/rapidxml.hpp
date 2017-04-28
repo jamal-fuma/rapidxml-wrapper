@@ -8,9 +8,9 @@
 
 // If standard library is disabled, user must provide implementations of required functions and typedefs
 #if !defined(RAPIDXML_NO_STDLIB)
-#include <cstdlib>      // For std::size_t
-#include <cassert>      // For assert
-#include <new>          // For placement new
+    #include <cstdlib>      // For std::size_t
+    #include <cassert>      // For assert
+    #include <new>          // For placement new
 #endif
 
 #include <boost/lexical_cast.hpp>
@@ -18,8 +18,8 @@
 // On MSVC, disable "conditional expression is constant" warning (level 4).
 // This warning is almost impossible to avoid with certain types of templated code
 #ifdef _MSC_VER
-#pragma warning(push)
-#pragma warning(disable:4127)   // Conditional expression is constant
+    #pragma warning(push)
+    #pragma warning(disable:4127)   // Conditional expression is constant
 #endif
 
 ///////////////////////////////////////////////////////////////////////////
@@ -112,25 +112,25 @@ namespace rapidxml
 // Pool sizes
 
 #ifndef RAPIDXML_STATIC_POOL_SIZE
-// Size of static memory block of memory_pool.
-// Define RAPIDXML_STATIC_POOL_SIZE before including rapidxml.hpp if you want to override the default value.
-// No dynamic memory allocations are performed by memory_pool until static memory is exhausted.
-#define RAPIDXML_STATIC_POOL_SIZE (64 * 1024)
+    // Size of static memory block of memory_pool.
+    // Define RAPIDXML_STATIC_POOL_SIZE before including rapidxml.hpp if you want to override the default value.
+    // No dynamic memory allocations are performed by memory_pool until static memory is exhausted.
+    #define RAPIDXML_STATIC_POOL_SIZE (64 * 1024)
 #endif
 
 #ifndef RAPIDXML_DYNAMIC_POOL_SIZE
-// Size of dynamic memory block of memory_pool.
-// Define RAPIDXML_DYNAMIC_POOL_SIZE before including rapidxml.hpp if you want to override the default value.
-// After the static block is exhausted, dynamic blocks with approximately this size are allocated by memory_pool.
-#define RAPIDXML_DYNAMIC_POOL_SIZE (64 * 1024)
+    // Size of dynamic memory block of memory_pool.
+    // Define RAPIDXML_DYNAMIC_POOL_SIZE before including rapidxml.hpp if you want to override the default value.
+    // After the static block is exhausted, dynamic blocks with approximately this size are allocated by memory_pool.
+    #define RAPIDXML_DYNAMIC_POOL_SIZE (64 * 1024)
 #endif
 
 #ifndef RAPIDXML_ALIGNMENT
-// Memory allocation alignment.
-// Define RAPIDXML_ALIGNMENT before including rapidxml.hpp if you want to override the default value, which is the size of pointer.
-// All memory allocations for nodes, attributes and strings will be aligned to this value.
-// This must be a power of 2 and at least 1, otherwise memory_pool will not work.
-#define RAPIDXML_ALIGNMENT sizeof(void *)
+    // Memory allocation alignment.
+    // Define RAPIDXML_ALIGNMENT before including rapidxml.hpp if you want to override the default value, which is the size of pointer.
+    // All memory allocations for nodes, attributes and strings will be aligned to this value.
+    // This must be a power of 2 and at least 1, otherwise memory_pool will not work.
+    #define RAPIDXML_ALIGNMENT sizeof(void *)
 #endif
 
 namespace rapidxml
@@ -316,7 +316,9 @@ namespace rapidxml
         {
             const Ch * tmp = p;
             while(*tmp)
+            {
                 ++tmp;
+            }
             return tmp - p;
         }
 
@@ -325,18 +327,24 @@ namespace rapidxml
         inline bool compare(const Ch * p1, std::size_t size1, const Ch * p2, std::size_t size2, bool case_sensitive)
         {
             if(size1 != size2)
+            {
                 return false;
+            }
             if(case_sensitive)
             {
                 for(const Ch * end = p1 + size1; p1 < end; ++p1, ++p2)
                     if(*p1 != *p2)
+                    {
                         return false;
+                    }
             }
             else
             {
                 for(const Ch * end = p1 + size1; p1 < end; ++p1, ++p2)
                     if(lookup_tables<0>::lookup_upcase[static_cast<unsigned char>(*p1)] != lookup_tables<0>::lookup_upcase[static_cast<unsigned char>(*p2)])
+                    {
                         return false;
+                    }
             }
             return true;
         }
@@ -426,16 +434,24 @@ namespace rapidxml
                 if(name)
                 {
                     if(name_size > 0)
+                    {
                         node->name(name, name_size);
+                    }
                     else
+                    {
                         node->name(name);
+                    }
                 }
                 if(value)
                 {
                     if(value_size > 0)
+                    {
                         node->value(value, value_size);
+                    }
                     else
+                    {
                         node->value(value);
+                    }
                 }
                 return node;
             }
@@ -457,16 +473,24 @@ namespace rapidxml
                 if(name)
                 {
                     if(name_size > 0)
+                    {
                         attribute->name(name, name_size);
+                    }
                     else
+                    {
                         attribute->name(name);
+                    }
                 }
                 if(value)
                 {
                     if(value_size > 0)
+                    {
                         attribute->value(value, value_size);
+                    }
                     else
+                    {
                         attribute->value(value);
+                    }
                 }
                 return attribute;
             }
@@ -482,11 +506,15 @@ namespace rapidxml
             {
                 assert(source || size);     // Either source or size (or both) must be specified
                 if(size == 0)
+                {
                     size = internal::measure(source) + 1;
+                }
                 Ch * result = static_cast<Ch *>(allocate_aligned(size * sizeof(Ch)));
                 if(source)
                     for(std::size_t i = 0; i < size; ++i)
+                    {
                         result[i] = source[i];
+                    }
                 return result;
             }
 
@@ -509,18 +537,21 @@ namespace rapidxml
                     result->type(source->type());
                 }
                 else
+                {
                     result = allocate_node(source->type());
-
+                }
                 // Clone name and value
                 result->name(source->name(), source->name_size());
                 result->value(source->value(), source->value_size());
-
                 // Clone child nodes and attributes
                 for(xml_node<Ch> * child = source->first_node(); child; child = child->next_sibling())
+                {
                     result->append_node(clone_node(child));
+                }
                 for(xml_attribute<Ch> * attr = source->first_attribute(); attr; attr = attr->next_attribute())
+                {
                     result->append_attribute(allocate_attribute(attr->name(), attr->value(), attr->name_size(), attr->value_size()));
-
+                }
                 return result;
             }
 
@@ -533,9 +564,13 @@ namespace rapidxml
                 {
                     char * previous_begin = reinterpret_cast<header *>(align(m_begin))->previous_begin;
                     if(m_free_func)
+                    {
                         m_free_func(m_begin);
+                    }
                     else
+                    {
                         delete[] m_begin;
+                    }
                     m_begin = previous_begin;
                 }
                 init();
@@ -595,7 +630,9 @@ namespace rapidxml
                     memory = new char[size];
 #ifdef RAPIDXML_NO_EXCEPTIONS
                     if(!memory)             // If exceptions are disabled, verify memory allocation, because new will not be able to throw bad_alloc
+                    {
                         RAPIDXML_PARSE_ERROR("out of memory", 0);
+                    }
 #endif
                 }
                 return static_cast<char *>(memory);
@@ -605,19 +642,18 @@ namespace rapidxml
             {
                 // Calculate aligned pointer
                 char * result = align(m_ptr);
-
                 // If not enough memory left in current pool, allocate a new pool
                 if(result + size > m_end)
                 {
                     // Calculate required pool size (may be bigger than RAPIDXML_DYNAMIC_POOL_SIZE)
                     std::size_t pool_size = RAPIDXML_DYNAMIC_POOL_SIZE;
                     if(pool_size < size)
+                    {
                         pool_size = size;
-
+                    }
                     // Allocate
                     std::size_t alloc_size = sizeof(header) + (2 * RAPIDXML_ALIGNMENT - 2) + pool_size;     // 2 alignments required in worst case: one for header, one for actual allocation
                     char * raw_memory = allocate_raw(alloc_size);
-
                     // Setup new pool in allocated memory
                     char * pool = align(raw_memory);
                     header * new_header = reinterpret_cast<header *>(pool);
@@ -625,11 +661,9 @@ namespace rapidxml
                     m_begin = raw_memory;
                     m_ptr = pool + sizeof(header);
                     m_end = raw_memory + alloc_size;
-
                     // Calculate aligned pointer again using new pool
                     result = align(m_ptr);
                 }
-
                 // Update pool and return aligned pointer
                 m_ptr = result + size;
                 return result;
@@ -826,11 +860,15 @@ namespace rapidxml
                 if(xml_node<Ch> * node = this->parent())
                 {
                     while(node->parent())
+                    {
                         node = node->parent();
+                    }
                     return node->type() == node_document ? static_cast<xml_document<Ch> *>(node) : 0;
                 }
                 else
+                {
                     return 0;
+                }
             }
 
             //! Gets previous attribute, optionally matching attribute name.
@@ -843,14 +881,20 @@ namespace rapidxml
                 if(name)
                 {
                     if(name_size == 0)
+                    {
                         name_size = internal::measure(name);
+                    }
                     for(xml_attribute<Ch> * attribute = m_prev_attribute; attribute; attribute = attribute->m_prev_attribute)
                         if(internal::compare(attribute->name(), attribute->name_size(), name, name_size, case_sensitive))
+                        {
                             return attribute;
+                        }
                     return 0;
                 }
                 else
+                {
                     return this->m_parent ? m_prev_attribute : 0;
+                }
             }
 
             //! Gets next attribute, optionally matching attribute name.
@@ -863,14 +907,20 @@ namespace rapidxml
                 if(name)
                 {
                     if(name_size == 0)
+                    {
                         name_size = internal::measure(name);
+                    }
                     for(xml_attribute<Ch> * attribute = m_next_attribute; attribute; attribute = attribute->m_next_attribute)
                         if(internal::compare(attribute->name(), attribute->name_size(), name, name_size, case_sensitive))
+                        {
                             return attribute;
+                        }
                     return 0;
                 }
                 else
+                {
                     return this->m_parent ? m_next_attribute : 0;
+                }
             }
 
         private:
@@ -929,7 +979,9 @@ namespace rapidxml
             {
                 xml_node<Ch> * node = const_cast<xml_node<Ch> *>(this);
                 while(node->parent())
+                {
                     node = node->parent();
+                }
                 return node->type() == node_document ? static_cast<xml_document<Ch> *>(node) : 0;
             }
 
@@ -943,14 +995,20 @@ namespace rapidxml
                 if(name)
                 {
                     if(name_size == 0)
+                    {
                         name_size = internal::measure(name);
+                    }
                     for(xml_node<Ch> * child = m_first_node; child; child = child->next_sibling())
                         if(internal::compare(child->name(), child->name_size(), name, name_size, case_sensitive))
+                        {
                             return child;
+                        }
                     return 0;
                 }
                 else
+                {
                     return m_first_node;
+                }
             }
 
             //! Gets last child node, optionally matching node name.
@@ -966,14 +1024,20 @@ namespace rapidxml
                 if(name)
                 {
                     if(name_size == 0)
+                    {
                         name_size = internal::measure(name);
+                    }
                     for(xml_node<Ch> * child = m_last_node; child; child = child->previous_sibling())
                         if(internal::compare(child->name(), child->name_size(), name, name_size, case_sensitive))
+                        {
                             return child;
+                        }
                     return 0;
                 }
                 else
+                {
                     return m_last_node;
+                }
             }
 
             //! Gets previous sibling node, optionally matching node name.
@@ -989,14 +1053,20 @@ namespace rapidxml
                 if(name)
                 {
                     if(name_size == 0)
+                    {
                         name_size = internal::measure(name);
+                    }
                     for(xml_node<Ch> * sibling = m_prev_sibling; sibling; sibling = sibling->m_prev_sibling)
                         if(internal::compare(sibling->name(), sibling->name_size(), name, name_size, case_sensitive))
+                        {
                             return sibling;
+                        }
                     return 0;
                 }
                 else
+                {
                     return m_prev_sibling;
+                }
             }
 
             //! Gets next sibling node, optionally matching node name.
@@ -1012,14 +1082,20 @@ namespace rapidxml
                 if(name)
                 {
                     if(name_size == 0)
+                    {
                         name_size = internal::measure(name);
+                    }
                     for(xml_node<Ch> * sibling = m_next_sibling; sibling; sibling = sibling->m_next_sibling)
                         if(internal::compare(sibling->name(), sibling->name_size(), name, name_size, case_sensitive))
+                        {
                             return sibling;
+                        }
                     return 0;
                 }
                 else
+                {
                     return m_next_sibling;
+                }
             }
 
             //! Gets first attribute of node, optionally matching attribute name.
@@ -1032,14 +1108,20 @@ namespace rapidxml
                 if(name)
                 {
                     if(name_size == 0)
+                    {
                         name_size = internal::measure(name);
+                    }
                     for(xml_attribute<Ch> * attribute = m_first_attribute; attribute; attribute = attribute->m_next_attribute)
                         if(internal::compare(attribute->name(), attribute->name_size(), name, name_size, case_sensitive))
+                        {
                             return attribute;
+                        }
                     return 0;
                 }
                 else
+                {
                     return m_first_attribute;
+                }
             }
 
             //! Gets last attribute of node, optionally matching attribute name.
@@ -1052,14 +1134,20 @@ namespace rapidxml
                 if(name)
                 {
                     if(name_size == 0)
+                    {
                         name_size = internal::measure(name);
+                    }
                     for(xml_attribute<Ch> * attribute = m_last_attribute; attribute; attribute = attribute->m_prev_attribute)
                         if(internal::compare(attribute->name(), attribute->name_size(), name, name_size, case_sensitive))
+                        {
                             return attribute;
+                        }
                     return 0;
                 }
                 else
+                {
                     return m_first_attribute ? m_last_attribute : 0;
+                }
             }
 
             ///////////////////////////////////////////////////////////////////////////
@@ -1126,9 +1214,13 @@ namespace rapidxml
                 assert(!where || where->parent() == this);
                 assert(child && !child->parent() && child->type() != node_document);
                 if(where == m_first_node)
+                {
                     prepend_node(child);
+                }
                 else if(where == 0)
+                {
                     append_node(child);
+                }
                 else
                 {
                     child->m_prev_sibling = where->m_prev_sibling;
@@ -1148,9 +1240,13 @@ namespace rapidxml
                 xml_node<Ch> * child = m_first_node;
                 m_first_node = child->m_next_sibling;
                 if(child->m_next_sibling)
+                {
                     child->m_next_sibling->m_prev_sibling = 0;
+                }
                 else
+                {
                     m_last_node = 0;
+                }
                 child->m_parent = 0;
             }
 
@@ -1167,7 +1263,9 @@ namespace rapidxml
                     child->m_prev_sibling->m_next_sibling = 0;
                 }
                 else
+                {
                     m_first_node = 0;
+                }
                 child->m_parent = 0;
             }
 
@@ -1178,9 +1276,13 @@ namespace rapidxml
                 assert(where && where->parent() == this);
                 assert(first_node());
                 if(where == m_first_node)
+                {
                     remove_first_node();
+                }
                 else if(where == m_last_node)
+                {
                     remove_last_node();
+                }
                 else
                 {
                     where->m_prev_sibling->m_next_sibling = where->m_next_sibling;
@@ -1193,7 +1295,9 @@ namespace rapidxml
             void remove_all_nodes()
             {
                 for(xml_node<Ch> * node = first_node(); node; node = node->m_next_sibling)
+                {
                     node->m_parent = 0;
+                }
                 m_first_node = 0;
             }
 
@@ -1246,9 +1350,13 @@ namespace rapidxml
                 assert(!where || where->parent() == this);
                 assert(attribute && !attribute->parent());
                 if(where == m_first_attribute)
+                {
                     prepend_attribute(attribute);
+                }
                 else if(where == 0)
+                {
                     append_attribute(attribute);
+                }
                 else
                 {
                     attribute->m_prev_attribute = where->m_prev_attribute;
@@ -1271,7 +1379,9 @@ namespace rapidxml
                     attribute->m_next_attribute->m_prev_attribute = 0;
                 }
                 else
+                {
                     m_last_attribute = 0;
+                }
                 attribute->m_parent = 0;
                 m_first_attribute = attribute->m_next_attribute;
             }
@@ -1289,7 +1399,9 @@ namespace rapidxml
                     m_last_attribute = attribute->m_prev_attribute;
                 }
                 else
+                {
                     m_first_attribute = 0;
+                }
                 attribute->m_parent = 0;
             }
 
@@ -1299,9 +1411,13 @@ namespace rapidxml
             {
                 assert(first_attribute() && where->parent() == this);
                 if(where == m_first_attribute)
+                {
                     remove_first_attribute();
+                }
                 else if(where == m_last_attribute)
+                {
                     remove_last_attribute();
+                }
                 else
                 {
                     where->m_prev_attribute->m_next_attribute = where->m_next_attribute;
@@ -1314,7 +1430,9 @@ namespace rapidxml
             void remove_all_attributes()
             {
                 for(xml_attribute<Ch> * attribute = first_attribute(); attribute; attribute = attribute->m_next_attribute)
+                {
                     attribute->m_parent = 0;
+                }
                 m_first_attribute = 0;
             }
 
@@ -1386,33 +1504,34 @@ namespace rapidxml
             void parse(Ch * text)
             {
                 assert(text);
-
                 // Remove current contents
                 this->remove_all_nodes();
                 this->remove_all_attributes();
-
                 // Parse BOM, if any
                 parse_bom<Flags>(text);
-
                 // Parse children
                 while(1)
                 {
                     // Skip whitespace before node
                     skip<whitespace_pred, Flags>(text);
                     if(*text == 0)
+                    {
                         break;
-
+                    }
                     // Parse and append new child
                     if(*text == Ch('<'))
                     {
                         ++text;     // Skip '<'
                         if(xml_node<Ch> * node = parse_node<Flags>(text))
+                        {
                             this->append_node(node);
+                        }
                     }
                     else
+                    {
                         RAPIDXML_PARSE_ERROR("expected <", text);
+                    }
                 }
-
             }
 
             //! Clears the document by deleting all nodes and clearing the memory pool.
@@ -1490,9 +1609,13 @@ namespace rapidxml
                 static unsigned char test(Ch ch)
                 {
                     if(Quote == Ch('\''))
+                    {
                         return internal::lookup_tables<0>::lookup_attribute_data_1[static_cast<unsigned char>(ch)];
+                    }
                     if(Quote == Ch('\"'))
+                    {
                         return internal::lookup_tables<0>::lookup_attribute_data_2[static_cast<unsigned char>(ch)];
+                    }
                     return 0;       // Should never be executed, to avoid warnings on Comeau
                 }
             };
@@ -1504,9 +1627,13 @@ namespace rapidxml
                 static unsigned char test(Ch ch)
                 {
                     if(Quote == Ch('\''))
+                    {
                         return internal::lookup_tables<0>::lookup_attribute_data_1_pure[static_cast<unsigned char>(ch)];
+                    }
                     if(Quote == Ch('\"'))
+                    {
                         return internal::lookup_tables<0>::lookup_attribute_data_2_pure[static_cast<unsigned char>(ch)];
+                    }
                     return 0;       // Should never be executed, to avoid warnings on Comeau
                 }
             };
@@ -1572,19 +1699,19 @@ namespace rapidxml
                 // skip entire UTF-8 encoded characters at once,
                 // checking their validity based on
                 // http://www.dwheeler.com/secure-programs/Secure-Programs-HOWTO/character-encoding.html (5.9.4 column 3)
-
                 unsigned length = 1;
                 bool legal = false;
                 if((unsigned char)src[0] <= 0x7F)
                 {
                     unsigned char c = src[0];
                     if(c == 0x09 || c == 0x0A || c == 0x0D || c >= 0x20)
+                    {
                         legal = true;
+                    }
                 }
                 else if((unsigned char)src[0] >= 0xF0)
                 {
                     length = 4;
-
                     if((
                                 // F0 90-BF 80-BF 80-BF
                                 ((unsigned char)src[0] == 0xF0) &&
@@ -1606,13 +1733,13 @@ namespace rapidxml
                                 (0x80 <= (unsigned char)src[3] &&
                                  (unsigned char)src[3] <= 0xBF)
                             ))
+                    {
                         legal = true;
-
+                    }
                 }
                 else if((unsigned char)src[0] >= 0xE0)
                 {
                     length = 3;
-
                     if((
                                 // E0 A0*-BF 80-BF
                                 ((unsigned char)src[0] == 0xE0) &&
@@ -1630,13 +1757,13 @@ namespace rapidxml
                                 (0x80 <= (unsigned char)src[2] &&
                                  (unsigned char)src[2] <= 0xBF)
                             ))
+                    {
                         legal = true;
-
+                    }
                 }
                 else if((unsigned char)src[0] >= 0xC0)
                 {
                     length = 2;
-
                     if(
                         // C2-DF 80-BF
                         (0xC2 <= (unsigned char)src[0] &&
@@ -1644,9 +1771,10 @@ namespace rapidxml
                         (0x80 <= (unsigned char)src[1] &&
                          (unsigned char)src[1] <= 0xBF)
                     )
+                    {
                         legal = true;
+                    }
                 }
-
                 if(legal)
                 {
                     if(dest)
@@ -1668,14 +1796,20 @@ namespace rapidxml
                             }
                             else
                                 for(unsigned i = 0; i < length; ++i)
+                                {
                                     *dest++ = *src++;
+                                }
                         }
                         else
                             for(unsigned i = 0; i < length; ++i)
+                            {
                                 *dest++ = *src++;
+                            }
                     }
                     else
+                    {
                         src += length;
+                    }
                 }
                 else
                 {
@@ -1714,7 +1848,9 @@ namespace rapidxml
                     copy_check_utf8(const_cast<const Ch *& >(text), dest);
                 }
                 else
+                {
                     ++text;
+                }
             }
 
             // Skip characters until predicate evaluates to true
@@ -1723,8 +1859,9 @@ namespace rapidxml
             {
                 Ch * tmp = text;
                 while(StopPred::test(*tmp))
+                {
                     next_char<Flags>(tmp);
-
+                }
                 text = tmp;
             }
 
@@ -1742,10 +1879,8 @@ namespace rapidxml
                     skip<StopPred, Flags>(text);
                     return text;
                 }
-
                 // Use simple skip until first modification is detected
                 skip<StopPredPure, Flags>(text);
-
                 // Use translation skip
                 Ch * src = text;
                 Ch * dest = src;
@@ -1759,7 +1894,6 @@ namespace rapidxml
                         {
                             switch(src[1])
                             {
-
                             // &amp; &apos;
                             case Ch('a'):
                                 if(src[2] == Ch('m') && src[3] == Ch('p') && src[4] == Ch(';'))
@@ -1777,7 +1911,6 @@ namespace rapidxml
                                     continue;
                                 }
                                 break;
-
                             // &quot;
                             case Ch('q'):
                                 if(src[2] == Ch('u') && src[3] == Ch('o') && src[4] == Ch('t') && src[5] == Ch(';'))
@@ -1788,7 +1921,6 @@ namespace rapidxml
                                     continue;
                                 }
                                 break;
-
                             // &gt;
                             case Ch('g'):
                                 if(src[2] == Ch('t') && src[3] == Ch(';'))
@@ -1799,7 +1931,6 @@ namespace rapidxml
                                     continue;
                                 }
                                 break;
-
                             // &lt;
                             case Ch('l'):
                                 if(src[2] == Ch('t') && src[3] == Ch(';'))
@@ -1810,7 +1941,6 @@ namespace rapidxml
                                     continue;
                                 }
                                 break;
-
                             // &#...; - assumes ASCII
                             case Ch('#'):
                                 if(src[2] == Ch('x'))
@@ -1821,7 +1951,9 @@ namespace rapidxml
                                     {
                                         unsigned char digit = internal::lookup_tables<0>::lookup_digits[static_cast<unsigned char>(*src)];
                                         if(digit == 0xFF)
+                                        {
                                             break;
+                                        }
                                         code = code * 16 + digit;
                                         ++src;
                                     }
@@ -1835,27 +1967,30 @@ namespace rapidxml
                                     {
                                         unsigned char digit = internal::lookup_tables<0>::lookup_digits[static_cast<unsigned char>(*src)];
                                         if(digit == 0xFF)
+                                        {
                                             break;
+                                        }
                                         code = code * 10 + digit;
                                         ++src;
                                     }
                                     insert_coded_character<Flags>(dest, code);    // Put character in output
                                 }
                                 if(*src == Ch(';'))
+                                {
                                     ++src;
+                                }
                                 else
+                                {
                                     RAPIDXML_PARSE_ERROR("expected ;", src);
+                                }
                                 continue;
-
                             // Something else
                             default:
                                 // Ignore, just copy '&' verbatim
                                 break;
-
                             }
                         }
                     }
-
                     // If whitespace condensing is enabled
                     if(Flags & parse_normalize_whitespace)
                     {
@@ -1867,22 +2002,25 @@ namespace rapidxml
                             ++src;                      // Skip first whitespace char
                             // Skip remaining whitespace chars
                             while(whitespace_pred::test(*src))
+                            {
                                 ++src;
+                            }
                             continue;
                         }
                     }
-
                     // No replacement, only copy character
                     if(Flags & parse_validate_utf8)
+                    {
                         copy_check_utf8(const_cast<const Ch *& >(src), dest);
+                    }
                     else
+                    {
                         *dest++ = *src++;
+                    }
                 }
-
                 // Return new end
                 text = src;
                 return dest;
-
             }
 
             ///////////////////////////////////////////////////////////////////////
@@ -1912,27 +2050,26 @@ namespace rapidxml
                     while(text[0] != Ch('?') || text[1] != Ch('>'))
                     {
                         if(!text[0])
+                        {
                             RAPIDXML_PARSE_ERROR("unexpected end of data", text);
+                        }
                         ++text;
                     }
                     text += 2;    // Skip '?>'
                     return 0;
                 }
-
                 // Create declaration
                 xml_node<Ch> * declaration = this->allocate_node(node_declaration);
-
                 // Skip whitespace before attributes or ?>
                 skip<whitespace_pred, Flags>(text);
-
                 // Parse declaration attributes
                 parse_node_attributes<Flags>(text, declaration);
-
                 // Skip ?>
                 if(text[0] != Ch('?') || text[1] != Ch('>'))
+                {
                     RAPIDXML_PARSE_ERROR("expected ?>", text);
+                }
                 text += 2;
-
                 return declaration;
             }
 
@@ -1947,32 +2084,33 @@ namespace rapidxml
                     while(text[0] != Ch('-') || text[1] != Ch('-') || text[2] != Ch('>'))
                     {
                         if(!text[0])
+                        {
                             RAPIDXML_PARSE_ERROR("unexpected end of data", text);
+                        }
                         ++text;
                     }
                     text += 3;     // Skip '-->'
                     return 0;      // Do not produce comment node
                 }
-
                 // Remember value start
                 Ch * value = text;
-
                 // Skip until end of comment
                 while(text[0] != Ch('-') || text[1] != Ch('-') || text[2] != Ch('>'))
                 {
                     if(!text[0])
+                    {
                         RAPIDXML_PARSE_ERROR("unexpected end of data", text);
+                    }
                     ++text;
                 }
-
                 // Create comment node
                 xml_node<Ch> * comment = this->allocate_node(node_comment);
                 comment->value(value, text - value);
-
                 // Place zero terminator after comment value
                 if(!(Flags & parse_no_string_terminators))
+                {
                     *text = Ch('\0');
-
+                }
                 text += 3;     // Skip '-->'
                 return comment;
             }
@@ -1983,14 +2121,12 @@ namespace rapidxml
             {
                 // Remember value start
                 Ch * value = text;
-
                 // Skip to >
                 while(*text != Ch('>'))
                 {
                     // Determine character type
                     switch(*text)
                     {
-
                     // If '[' encountered, scan for matching ending ']' using naive algorithm with depth
                     // This works for all W3C test files except for 2 most wicked
                     case Ch('['):
@@ -2014,29 +2150,25 @@ namespace rapidxml
                             }
                             break;
                         }
-
                     // Error on end of text
                     case Ch('\0'):
                         RAPIDXML_PARSE_ERROR("unexpected end of data", text);
-
                     // Other character, skip it
                     default:
                         ++text;
-
                     }
                 }
-
                 // If DOCTYPE nodes enabled
                 if(Flags & parse_doctype_node)
                 {
                     // Create a new doctype node
                     xml_node<Ch> * doctype = this->allocate_node(node_doctype);
                     doctype->value(value, text - value);
-
                     // Place zero terminator after value
                     if(!(Flags & parse_no_string_terminators))
+                    {
                         *text = Ch('\0');
-
+                    }
                     text += 1;      // skip '>'
                     return doctype;
                 }
@@ -2045,7 +2177,6 @@ namespace rapidxml
                     text += 1;      // skip '>'
                     return 0;
                 }
-
             }
 
             // Parse PI
@@ -2057,38 +2188,35 @@ namespace rapidxml
                 {
                     // Create pi node
                     xml_node<Ch> * pi = this->allocate_node(node_pi);
-
                     // Extract PI target name
                     Ch * name = text;
                     skip<node_name_pred, Flags>(text);
                     if(text == name)
+                    {
                         RAPIDXML_PARSE_ERROR("expected PI target", text);
+                    }
                     pi->name(name, text - name);
-
                     // Skip whitespace between pi target and pi
                     skip<whitespace_pred, Flags>(text);
-
                     // Remember start of pi
                     Ch * value = text;
-
                     // Skip to '?>'
                     while(text[0] != Ch('?') || text[1] != Ch('>'))
                     {
                         if(*text == Ch('\0'))
+                        {
                             RAPIDXML_PARSE_ERROR("unexpected end of data", text);
+                        }
                         ++text;
                     }
-
                     // Set pi value (verbatim, no entity expansion or whitespace normalization)
                     pi->value(value, text - value);
-
                     // Place zero terminator after name and value
                     if(!(Flags & parse_no_string_terminators))
                     {
                         pi->name()[pi->name_size()] = Ch('\0');
                         pi->value()[pi->value_size()] = Ch('\0');
                     }
-
                     text += 2;                          // Skip '?>'
                     return pi;
                 }
@@ -2098,7 +2226,9 @@ namespace rapidxml
                     while(text[0] != Ch('?') || text[1] != Ch('>'))
                     {
                         if(*text == Ch('\0'))
+                        {
                             RAPIDXML_PARSE_ERROR("unexpected end of data", text);
+                        }
                         ++text;
                     }
                     text += 2;    // Skip '?>'
@@ -2114,15 +2244,19 @@ namespace rapidxml
             {
                 // Backup to contents start if whitespace trimming is disabled
                 if(!(Flags & parse_trim_whitespace))
+                {
                     text = contents_start;
-
+                }
                 // Skip until end of data
                 Ch * value = text, *end;
                 if(Flags & parse_normalize_whitespace)
+                {
                     end = skip_and_expand_character_refs<text_pred, text_pure_with_ws_pred, Flags>(text);
+                }
                 else
+                {
                     end = skip_and_expand_character_refs<text_pred, text_pure_no_ws_pred, Flags>(text);
-
+                }
                 // Trim trailing whitespace if flag is set; leading was already trimmed by whitespace skip after >
                 if(Flags & parse_trim_whitespace)
                 {
@@ -2130,16 +2264,19 @@ namespace rapidxml
                     {
                         // Whitespace is already condensed to single space characters by skipping function, so just trim 1 char off the end
                         if(*(end - 1) == Ch(' '))
+                        {
                             --end;
+                        }
                     }
                     else
                     {
                         // Backup until non-whitespace character is found
                         while(whitespace_pred::test(*(end - 1)))
+                        {
                             --end;
+                        }
                     }
                 }
-
                 // If characters are still left between end and value (this test is only necessary if normalization is enabled)
                 // Create new data node
                 if(!(Flags & parse_no_data_nodes))
@@ -2148,12 +2285,12 @@ namespace rapidxml
                     data->value(value, end - value);
                     node->append_node(data);
                 }
-
                 // Add data to parent node if no data exists yet
                 if(!(Flags & parse_no_element_values))
                     if(*node->value() == Ch('\0'))
+                    {
                         node->value(value, end - value);
-
+                    }
                 // Place zero terminator after value
                 if(!(Flags & parse_no_string_terminators))
                 {
@@ -2161,7 +2298,6 @@ namespace rapidxml
                     *end = Ch('\0');
                     return ch;      // Return character that ends data; this is required because zero terminator overwritten it
                 }
-
                 // Return character that ends data
                 return *text;
             }
@@ -2177,30 +2313,32 @@ namespace rapidxml
                     while(text[0] != Ch(']') || text[1] != Ch(']') || text[2] != Ch('>'))
                     {
                         if(!text[0])
+                        {
                             RAPIDXML_PARSE_ERROR("unexpected end of data", text);
+                        }
                         next_char<Flags>(text);
                     }
                     text += 3;      // Skip ]]>
                     return 0;       // Do not produce CDATA node
                 }
-
                 // Skip until end of cdata
                 Ch * value = text;
                 while(text[0] != Ch(']') || text[1] != Ch(']') || text[2] != Ch('>'))
                 {
                     if(!text[0])
+                    {
                         RAPIDXML_PARSE_ERROR("unexpected end of data", text);
+                    }
                     next_char<Flags>(text);
                 }
-
                 // Create new cdata node
                 xml_node<Ch> * cdata = this->allocate_node(node_cdata);
                 cdata->value(value, text - value);
-
                 // Place zero terminator after value
                 if(!(Flags & parse_no_string_terminators))
+                {
                     *text = Ch('\0');
-
+                }
                 text += 3;      // Skip ]]>
                 return cdata;
             }
@@ -2211,20 +2349,18 @@ namespace rapidxml
             {
                 // Create element node
                 xml_node<Ch> * element = this->allocate_node(node_element);
-
                 // Extract element name
                 Ch * name = text;
                 skip<node_name_pred, Flags>(text);
                 if(text == name)
+                {
                     RAPIDXML_PARSE_ERROR("expected element name", text);
+                }
                 element->name(name, text - name);
-
                 // Skip whitespace between element name and attributes or >
                 skip<whitespace_pred, Flags>(text);
-
                 // Parse attributes, if any
                 parse_node_attributes<Flags>(text, element);
-
                 // Determine ending type
                 if(*text == Ch('>'))
                 {
@@ -2235,16 +2371,20 @@ namespace rapidxml
                 {
                     ++text;
                     if(*text != Ch('>'))
+                    {
                         RAPIDXML_PARSE_ERROR("expected >", text);
+                    }
                     ++text;
                 }
                 else
+                {
                     RAPIDXML_PARSE_ERROR("expected >", text);
-
+                }
                 // Place zero terminator after name
                 if(!(Flags & parse_no_string_terminators))
+                {
                     element->name()[element->name_size()] = Ch('\0');
-
+                }
                 // Return parsed element
                 return element;
             }
@@ -2256,12 +2396,10 @@ namespace rapidxml
                 // Parse proper node type
                 switch(text[0])
                 {
-
                 // <...
                 default:
                     // Parse and append element node
                     return parse_element<Flags>(text);
-
                 // <?...
                 case Ch('?'):
                     ++text;     // Skip ?
@@ -2279,14 +2417,11 @@ namespace rapidxml
                         // Parse PI
                         return parse_pi<Flags>(text);
                     }
-
                 // <!...
                 case Ch('!'):
-
                     // Parse proper subset of <! node
                     switch(text[1])
                     {
-
                     // <!-
                     case Ch('-'):
                         if(text[2] == Ch('-'))
@@ -2296,7 +2431,6 @@ namespace rapidxml
                             return parse_comment<Flags>(text);
                         }
                         break;
-
                     // <![
                     case Ch('['):
                         if(text[2] == Ch('C') && text[3] == Ch('D') && text[4] == Ch('A') &&
@@ -2307,7 +2441,6 @@ namespace rapidxml
                             return parse_cdata<Flags>(text);
                         }
                         break;
-
                     // <!D
                     case Ch('D'):
                         if(text[2] == Ch('O') && text[3] == Ch('C') && text[4] == Ch('T') &&
@@ -2318,20 +2451,19 @@ namespace rapidxml
                             text += 9;      // skip '!DOCTYPE '
                             return parse_doctype<Flags>(text);
                         }
-
                     }   // switch
-
                     // Attempt to skip other, unrecognized node types starting with <!
                     ++text;     // Skip !
                     while(*text != Ch('>'))
                     {
                         if(*text == 0)
+                        {
                             RAPIDXML_PARSE_ERROR("unexpected end of data", text);
+                        }
                         next_char<Flags>(text);
                     }
                     ++text;     // Skip '>'
                     return 0;   // No node recognized
-
                 }
             }
 
@@ -2345,19 +2477,18 @@ namespace rapidxml
                     // Skip whitespace between > and node contents
                     Ch * contents_start = text;     // Store start of node contents before whitespace is skipped
                     if(Flags & parse_normalize_whitespace)
+                    {
                         skip<whitespace_pred, Flags>(text);
+                    }
                     Ch next_char = *text;
-
                     // After data nodes, instead of continuing the loop, control jumps here.
                     // This is because zero termination inside parse_and_append_data() function
                     // would wreak havoc with the above code.
                     // Also, skipping whitespace after data nodes is unnecessary.
 after_data_node:
-
                     // Determine what comes next: node closing, child node, data node, or 0?
                     switch(next_char)
                     {
-
                     // Node closing or child node
                     case Ch('<'):
                         if(text[1] == Ch('/'))
@@ -2370,7 +2501,9 @@ after_data_node:
                                 Ch * closing_name = text;
                                 skip<node_name_pred, Flags>(text);
                                 if(!internal::compare(node->name(), node->name_size(), closing_name, text - closing_name, true))
+                                {
                                     RAPIDXML_PARSE_ERROR("invalid closing tag name", text);
+                                }
                             }
                             else
                             {
@@ -2380,7 +2513,9 @@ after_data_node:
                             // Skip remaining whitespace after node name
                             skip<whitespace_pred, Flags>(text);
                             if(*text != Ch('>'))
+                            {
                                 RAPIDXML_PARSE_ERROR("expected >", text);
+                            }
                             ++text;     // Skip '>'
                             return;     // Node closed, finished parsing contents
                         }
@@ -2389,19 +2524,18 @@ after_data_node:
                             // Child node
                             ++text;     // Skip '<'
                             if(xml_node<Ch> * child = parse_node<Flags>(text))
+                            {
                                 node->append_node(child);
+                            }
                         }
                         break;
-
                     // End of data - error
                     case Ch('\0'):
                         RAPIDXML_PARSE_ERROR("unexpected end of data", text);
-
                     // Data node
                     default:
                         next_char = parse_and_append_data<Flags>(node, text, contents_start);
                         goto after_data_node;   // Bypass regular processing after data nodes
-
                     }
                 }
             }
@@ -2418,54 +2552,59 @@ after_data_node:
                     ++text;     // Skip first character of attribute name
                     skip<attribute_name_pred, Flags>(text);
                     if(text == name)
+                    {
                         RAPIDXML_PARSE_ERROR("expected attribute name", name);
-
+                    }
                     // Create new attribute
                     xml_attribute<Ch> * attribute = this->allocate_attribute();
                     attribute->name(name, text - name);
                     node->append_attribute(attribute);
-
                     // Skip whitespace after attribute name
                     skip<whitespace_pred, Flags>(text);
-
                     // Skip =
                     if(*text != Ch('='))
+                    {
                         RAPIDXML_PARSE_ERROR("expected =", text);
+                    }
                     ++text;
-
                     // Add terminating zero after name
                     if(!(Flags & parse_no_string_terminators))
+                    {
                         attribute->name()[attribute->name_size()] = 0;
-
+                    }
                     // Skip whitespace after =
                     skip<whitespace_pred, Flags>(text);
-
                     // Skip quote and remember if it was ' or "
                     Ch quote = *text;
                     if(quote != Ch('\'') && quote != Ch('"'))
+                    {
                         RAPIDXML_PARSE_ERROR("expected ' or \"", text);
+                    }
                     ++text;
-
                     // Extract attribute value and expand char refs in it
                     Ch * value = text, *end;
                     const int AttFlags = Flags & ~parse_normalize_whitespace;   // No whitespace normalization in attributes
                     if(quote == Ch('\''))
+                    {
                         end = skip_and_expand_character_refs<attribute_value_pred<Ch('\'')>, attribute_value_pure_pred<Ch('\'')>, AttFlags>(text);
+                    }
                     else
+                    {
                         end = skip_and_expand_character_refs<attribute_value_pred<Ch('"')>, attribute_value_pure_pred<Ch('"')>, AttFlags>(text);
-
+                    }
                     // Set attribute value
                     attribute->value(value, end - value);
-
                     // Make sure that end quote is present
                     if(*text != quote)
+                    {
                         RAPIDXML_PARSE_ERROR("expected ' or \"", text);
+                    }
                     ++text;     // Skip quote
-
                     // Add terminating zero after value
                     if(!(Flags & parse_no_string_terminators))
+                    {
                         attribute->value()[attribute->value_size()] = 0;
-
+                    }
                     // Skip whitespace after attribute value
                     skip<whitespace_pred, Flags>(text);
                 }
@@ -2764,7 +2903,7 @@ after_data_node:
 
 // On MSVC, restore warnings state
 #ifdef _MSC_VER
-#pragma warning(pop)
+    #pragma warning(pop)
 #endif
 
 #endif
