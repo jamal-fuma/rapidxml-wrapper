@@ -1,6 +1,8 @@
 #ifndef RAPIDXML_HPP_INCLUDED
 #define RAPIDXML_HPP_INCLUDED
 
+#include "rapidxml_xhtml.hpp"
+
 // Copyright (C) 2006, 2009 Marcin Kalicinski
 // Version 1.13
 // Revision $DateTime: 2009/05/13 01:46:17 $
@@ -186,6 +188,10 @@ namespace rapidxml
     //! <br><br>
     //! See xml_document::parse() function.
     const int parse_no_entity_translation = 0x8;
+
+    //! Parse flag instructing the parser to not only parse XML entities, but also (X)HTML and translate
+    //! them to their corresponding UTF-8 sequence
+    const int parse_xhtml_entity_translation = 0x1000;
 
     //! Parse flag instructing the parser to disable UTF-8 handling and assume plain 8 bit characters.
     //! By default, UTF-8 handling is enabled.
@@ -1984,10 +1990,18 @@ namespace rapidxml
                                     RAPIDXML_PARSE_ERROR("expected ;", src);
                                 }
                                 continue;
+                            }
                             // Something else
-                            default:
-                                // Ignore, just copy '&' verbatim
-                                break;
+                            if(Flags & parse_xhtml_entity_translation)
+                            {
+                                if(rapidxml::translate_xhtml_entity(src, dest))
+                                {
+                                    continue;
+                                }
+                                else
+                                {
+                                    RAPIDXML_PARSE_ERROR("could not parse xhtml entity", src);
+                                }
                             }
                         }
                     }
