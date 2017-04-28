@@ -55,12 +55,27 @@ AC_DEFUN_ONCE([FUMA_AX_CANONICAL_HOST],[
         # enable the Windows specific portions of the makefile
         AM_CONDITIONAL([WINDOWS],[test "x$windows" = "xtrue"])
 
-        # add in some flags to choose platform specific makefile
-        FUMA_AX_CPPFLAGS_IF_ENABLED([freebsd],[-DFREEBSD=1])
+	FUMA_AX_CPPFLAGS_IF_ENABLED([freebsd],[-DFREEBSD=1])
         FUMA_AX_CPPFLAGS_IF_ENABLED([unix],[-DUNIX=1])
         FUMA_AX_CPPFLAGS_IF_ENABLED([linux],[-DLINUX=1])
         FUMA_AX_CPPFLAGS_IF_ENABLED([darwin],[-DDARWIN=1])
         FUMA_AX_CPPFLAGS_IF_ENABLED([windows],[-DWINDOWS=1])
+
+	# work out what is the default extension for the platform
+        AS_IF([test "x$darwin" = "xtrue"],
+	[
+		fuma_ax_default_library_ext=".dylib"
+	],
+	[
+		AS_IF([test "x$unix" = "xtrue"],
+		[
+			fuma_ax_default_library_ext=".so"
+		],
+		[
+			fuma_ax_default_library_ext=".dll"
+		])
+	])
+	export fuma_ax_default_library_ext="$fuma_ax_default_library_ext"
 
 #---------------------------------------------------------------
 # FUMA_AX_CANONICAL_HOST end
