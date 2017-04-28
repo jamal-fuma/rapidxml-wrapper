@@ -21,7 +21,7 @@ export PROJECT_ROOT=${ROOTPATH}
 
 
 ( cd ${PROJECT_ROOT}/sources/include; \
-    find fuma -name '*.hpp' \
+    find . -name '*.hpp' \
     |   sort -t/ -k4,7f -g \
     |   sed -e 's/\(.*\)/ \1 \\/' \
 ) ;
