@@ -18,7 +18,6 @@ SCRIPT=$(abspath ${0})
 SCRIPTPATH=`dirname ${SCRIPT}`
 ROOTPATH=`dirname ${SCRIPTPATH}`
 export PROJECT_ROOT=${ROOTPATH}
-export PROJECT_NAME="RapidXML"
 
 #  CC          C compiler command
 #  CFLAGS      C compiler flags
@@ -30,45 +29,98 @@ export PROJECT_NAME="RapidXML"
 #  CXXFLAGS    C++ compiler flags
 #  CXXCPP      C++ preprocessor
 
-case "${1}" in
-	"centos")
-		PTHREAD_LIBS="-L/lib64 -lpthread" \
-		${PROJECT_ROOT}/configure \
-			--prefix="/home/${PROJECT_NAME}/software/${PROJECT_NAME}/" \
-			--with-webtoolkit="/home/${PROJECT_NAME}/software/wt/current" \
-			--enable-maintainer-mode \
-			--enable-silent-rules \
-			--with-boost="/home/${PROJECT_NAME}/software/wt/current" \
-			--with-boost-libdir="/home/${PROJECT_NAME}/software/wt/current/lib" \
-			--with-ccache=yes ;
-		;;
-	"bsd|linux")
-		${PROJECT_ROOT}/configure \
-			--prefix="/home/${PROJECT_NAME}/software/${PROJECT_NAME}/" \
-			--with-webtoolkit="/home/${PROJECT_NAME}/software/wt/current" \
-			--enable-maintainer-mode \
-			--enable-silent-rules \
-			--with-ccache=yes ;
-		;;
-	"profile")
-		${PROJECT_ROOT}/configure \
-			--prefix="/home/${PROJECT_NAME}/software/${PROJECT_NAME}/" \
-			--with-webtoolkit="/home/${PROJECT_NAME}/software/wt/current" \
-			--enable-maintainer-mode \
-			--enable-silent-rules \
-                	--enable-gcov;
-		;;
-	"osx")
-		CTAGS=/usr/local/bin/ctags \
-		CTAGSFLAGS="-R --tag-relative=yes --exclude=.git --exclude=build" \
-		ASTYLE_TOOL=/usr/local/Cellar/astyle/2.04/bin/astyle \
-		${PROJECT_ROOT}/configure \
-			--prefix="/Users/${PROJECT_NAME}/software/${PROJECT_NAME}/" \
-			--enable-maintainer-mode \
-			--with-sqlite3=yes \
-			--with-ccache=yes \
-			--enable-debug \
-			--enable-silent-rules ;
-		;;
-	*)
-esac
+if [ "${1}" = "bsd" ];
+then
+        ${PROJECT_ROOT}/configure \
+                --prefix="/home/user/software" \
+                --enable-maintainer-mode \
+                --with-ccache=yes \
+                --enable-silent-rules ;
+fi
+
+if [ "${1}" = "osx" ];
+then
+        CTAGS=/usr/local/bin/ctags \
+        CTAGSFLAGS="-R --tag-relative=yes --exclude=.git --exclude=build" \
+        ASTYLE_TOOL=/usr/local/Cellar/astyle/2.05/bin/astyle \
+        ${PROJECT_ROOT}/configure \
+            --enable-maintainer-mode \
+            --with-ccache=yes \
+            --enable-silent-rules ;
+fi
+
+if [ "${1}" = "linux" ];
+then
+        ${PROJECT_ROOT}/configure \
+                --enable-maintainer-mode \
+                --enable-debug \
+                --with-ccache=yes \
+                --enable-silent-rules \
+		--with-webtoolkit-include-dir=/usr/local/include \
+                --with-webtoolkit-library-dir=/usr/local/lib
+fi
+
+if [ "${1}" = "profile" ];
+then
+        CC=${CC:-"gcc"} CXX=${CXX:-"g++"} ${PROJECT_ROOT}/configure \
+                --enable-maintainer-mode \
+                --with-ccache=no \
+                --enable-debug \
+                --enable-silent-rules \
+                --enable-gcov;
+fi
+
+if [ "${1}" = "clang" ];
+then
+        CXXFLAGS="-std=c++14" CXX="clang++" CC="clang" \
+        ${PROJECT_ROOT}/configure \
+                --enable-maintainer-mode \
+                --with-ccache=no \
+                --enable-debug \
+                --enable-silent-rules \
+                --with-webtoolkit-include-dir=/usr/local/include \
+                --with-webtoolkit-library-dir=/usr/local/lib
+fi
+
+if [ "${1}" = "clang-analyse" ];
+then
+        CXXFLAGS="-std=c++14" CXX="clang++" CC="clang" scan-build \
+            -analyze-headers \
+            -k \
+            -v \
+            -enable-checker cplusplus \
+            -enable-checker deadcode \
+            -enable-checker security \
+            -enable-checker unix \
+        ${PROJECT_ROOT}/configure \
+                --enable-maintainer-mode \
+                --with-ccache=no \
+                --enable-debug \
+                --enable-silent-rules \
+                --with-webtoolkit-include-dir=/usr/local/include \
+                --with-webtoolkit-library-dir=/usr/local/lib
+fi
+
+if [ "${1}" = "gcc-asan" ];
+then
+        CXXFLAGS="-std=c++14 -fsanitize=address -Wfatal-errors -Werror" CXX="g++" CC="gcc" LDFLAGS="-fsanitize=address -static-libasan -lasan"
+        ${PROJECT_ROOT}/configure \
+                --enable-maintainer-mode \
+                --with-ccache=no \
+                --enable-debug \
+                --enable-silent-rules \
+                --with-webtoolkit-include-dir=/usr/local/include \
+                --with-webtoolkit-library-dir=/usr/local/lib
+fi
+
+
+if [ "${1}" = "centos" ];
+then
+        ${PROJECT_ROOT}/configure \
+                --prefix="/home/user/software" \
+                --enable-maintainer-mode \
+                --enable-silent-rules \
+                --with-boost=/home/user/software/boost/current \
+                --with-boost-libdir=/home/user/software/boost/current/lib \
+                --with-ccache=yes ;
+fi
