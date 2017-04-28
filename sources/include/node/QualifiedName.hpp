@@ -10,6 +10,7 @@ namespace Node
         struct QualifiedName
         {
             QualifiedName();
+
             QualifiedName(const char * ptr, std::size_t len);
 
             const char * prefix() const;

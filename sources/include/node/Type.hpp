@@ -36,20 +36,31 @@ namespace Node
             bool match_value(const char * value)
             {
                 if(!m_node)
+                {
                     return false;
-
+                }
                 return Node::Util::match_string(
                            m_node->value(), m_node->value_size(),
                            value);
             }
 
-            Node::XML::QualifiedName
-            to_qualified_name()
+            QualifiedName
+            to_qualified_name() const
             {
                 if(!m_node)
-                    return Node::XML::QualifiedName();
+                {
+                    return QualifiedName();
+                }
+                return QualifiedName(m_node->name(), m_node->name_size());
+            }
 
-                return Node::XML::QualifiedName(m_node->name(), m_node->name_size());
+            std::string value() const
+            {
+                if(!m_node)
+                {
+                    return std::string{};
+                }
+                return std::string{m_node->value(), m_node->value_size()};
             }
 
             pointer_type m_node;
@@ -65,7 +76,7 @@ namespace Node
         typedef Type<rapidxml::node_data> DataNode;
 
         //!< A CDATA node. Name is empty. Value contains data text.
-        typedef Type<rapidxml::node_cdata> CDATA_node;
+        typedef Type<rapidxml::node_cdata> CDATA_Node;
 
         //!< A comment node. Name is empty. Value contains comment text.
         typedef Type<rapidxml::node_comment> CommentNode;

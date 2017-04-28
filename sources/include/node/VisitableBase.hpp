@@ -1,8 +1,10 @@
-#ifndef NODE_XML_HPP
-#define NODE_XML_HPP
+#ifndef NODE_VISITABLE_BASE_HPP
+#define NODE_VISITABLE_BASE_HPP
+
+#include <rapidxml/rapidxml.hpp>
 
 #include <memory>
-
+#include <node/Type.hpp>
 namespace Node
 {
     namespace XML
@@ -18,71 +20,178 @@ namespace Node
 
         struct Visitor
         {
-            virtual void visit(Document * node) = 0;
-            virtual void visit(Element * node) = 0;
-            virtual void visit(Data * node) = 0;
-            virtual void visit(CDATA * node) = 0;
-            virtual void visit(Declaration * node) = 0;
-            virtual void visit(Comment * node) = 0;
-            virtual void visit(Doctype * node) = 0;
-            virtual void visit(ProcessingIntruction * node) = 0;
+            virtual void visit(const Document  & node) = 0;
+            virtual void visit(const Element  & node) = 0;
+            virtual void visit(const Data  & node) = 0;
+            virtual void visit(const CDATA  & node) = 0;
+            virtual void visit(const Declaration  & node) = 0;
+            virtual void visit(const Comment  & node) = 0;
+            virtual void visit(const Doctype  & node) = 0;
+            virtual void visit(const ProcessingIntruction  & node) = 0;
 
             virtual ~Visitor() = default;
         };
 
+#define UNUSED(a) if(sizeof(&a) == sizeof(&a)){}
+        struct VisitorHelper
+            : public Visitor
+        {
+            VisitorHelper()
+                : Visitor{}
+            {}
+            virtual void visit(const Document  & node) override
+            {
+                UNUSED(node);
+            }
+
+            virtual void visit(const CDATA  & node) override
+            {
+                UNUSED(node);
+            }
+
+            virtual void visit(const Declaration  & node) override
+            {
+                UNUSED(node);
+            }
+
+            virtual void visit(const Comment  & node) override
+            {
+                UNUSED(node);
+            }
+
+            virtual void visit(const Doctype  & node) override
+            {
+                UNUSED(node);
+            }
+
+            virtual void visit(const ProcessingIntruction  & node) override
+            {
+                UNUSED(node);
+            }
+            virtual ~VisitorHelper() = default;
+        };
+#undef UNUSED
+
         // the common base to allow dynamic dispatch
         struct VisitableBase
-                : std::enable_shared_from_this<VisitableBase>
         {
-            virtual void accept(Visitor & v) = 0;
-
-            std::shared_ptr<VisitableBase> getptr()
-            {
-                return shared_from_this();
-            }
+            virtual void accept(Visitor & v) const = 0;
+            virtual ~VisitableBase() = default;
         };
 
         struct Document : VisitableBase
         {
-            virtual void accept(Visitor & v) {}
-        };
+            DocumentNode m_node;
 
-        struct Element : VisitableBase
-        {
-            virtual void accept(Visitor & v) {}
+            Document(rapidxml::xml_node<> * node=nullptr)
+                : m_node{node}
+            {}
+
+            virtual void accept(Visitor & v) const override
+            {
+                v.visit(*this);
+            }
         };
 
         struct Data : VisitableBase
         {
-            virtual void accept(Visitor & v) {}
+            DataNode m_node;
+            Data(rapidxml::xml_node<> * node=nullptr)
+                : m_node{node}
+            {}
+
+
+            virtual void accept(Visitor & v) const override
+            {
+                v.visit(*this);
+            }
         };
 
         struct CDATA : VisitableBase
         {
-            virtual void accept(Visitor & v) {}
+            CDATA_Node m_node;
+
+            CDATA(rapidxml::xml_node<> * node=nullptr)
+                : m_node{node}
+            {}
+
+            virtual void accept(Visitor & v) const
+            {
+                v.visit(*this);
+            }
+
         };
 
         struct Comment : VisitableBase
         {
-            virtual void accept(Visitor & v) {}
+            CommentNode m_node;
+
+            Comment(rapidxml::xml_node<> * node=nullptr)
+                : m_node{node}
+            {}
+
+            virtual void accept(Visitor & v) const
+            {
+                v.visit(*this);
+            }
+
         };
 
         struct Declaration : VisitableBase
         {
-            virtual void accept(Visitor & v) {}
+            DeclarationNode m_node;
+
+            Declaration(rapidxml::xml_node<> * node=nullptr)
+                : m_node{node}
+            {}
+
+            virtual void accept(Visitor & v) const
+            {
+                v.visit(*this);
+            }
+
         };
 
         struct Doctype : VisitableBase
         {
-            virtual void accept(Visitor & v) {}
+            DoctypeNode m_node;
+
+            Doctype(rapidxml::xml_node<> * node=nullptr)
+                : m_node{node}
+            {}
+
+            virtual void accept(Visitor & v) const
+            {
+                v.visit(*this);
+            }
+
         };
 
         struct ProcessingIntruction : VisitableBase
         {
-            virtual void accept(Visitor & v) {}
+            ProcessingIntructionNode m_node;
+
+            ProcessingIntruction(rapidxml::xml_node<> * node=nullptr)
+                : m_node{node}
+            {}
+
+            virtual void accept(Visitor & v) const
+            {
+                v.visit(*this);
+            }
         };
 
+        struct NopVisitor
+            : public VisitorHelper
+        {
+            bool m_print_next_value;
+
+            NopVisitor();
+            virtual void visit(const Element & node) override;
+            virtual void visit(const Data  & node) override;
+            virtual ~NopVisitor() = default;
+        };
     } // Node::XML
 } // Node
 
-#endif /*  ndef NODE_XML_HPP */
+#endif /*  ndef NODE_VISITABLE_BASE_HPP */

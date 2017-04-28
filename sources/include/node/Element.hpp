@@ -1,34 +1,38 @@
-#ifndef ELEMENT_HPP
-#define ELEMENT_HPP
+#ifndef NODE_ELEMENT_HPP
+#define NODE_ELEMENT_HPP
 
-#include "visitor/VisitableBase.hpp"
+#include "node/VisitableBase.hpp"
 
-//!< An element node.
-// Name contains element name.
-//Value contains text of first data node.
-struct Element
-        : ElementNode
-        , VisitableBase
+namespace Node
 {
-    ElementNode() = default;
-    virtual ~Element() = default;
+    namespace XML
+    {
+        //!< An element node.
+        // Name contains element name.
+        //Value contains text of first data node.
+        struct Element
+            : public VisitableBase
+        {
+            // access a qualified name as component
+            ElementNode m_node;
+            QualifiedName m_name;
 
-    Element(rapidxml::xml_node<> * node);
+            Element(rapidxml::xml_node<> * node=nullptr);
+            virtual ~Element() = default;
 
-    // visitor entry point
-    virtual void accept(Visitor & v)
+            // visitor entry point
+            virtual void accept(Visitor & v) const override
+            {
+                v.visit(*this);
+            }
 
-    // copyable
-    Element & operator=(const Element & rhs) = default;
-    Element(const Element & rhs) = default;
+            // non copying string matchers
+            bool match_xmlns_prefix(const char * xmlns_prefix,size_t len) const;
+            bool match_fullname(const char * name) const;
+            bool match_localname(const char * name) const;
+            std::string xmlns_prefix() const;
+        };
+    } // Node::XML
+} // Node
 
-    // non copying string matchers
-    bool match_xmlns_prefix(const char * xmlns_prefix, size_t len);
-    bool match_fullname(const char * name);
-    bool match_localname(const char * name);
-
-    // access a qualified name as component
-    Node::XML::QualifiedName m_name;
-};
-
-#endif /*  ndef ELEMENT_HPP */
+#endif /*  ndef NODE_ELEMENT_HPP */

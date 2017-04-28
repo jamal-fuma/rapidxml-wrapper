@@ -2,9 +2,8 @@
 #define NODE_DOM_TREE_HPP
 
 #include "rapidxml/rapidxml.hpp"
-
 #include <memory>
-#include <queue>
+#include <vector>
 #include <cstddef>
 
 namespace Node
@@ -12,17 +11,18 @@ namespace Node
     namespace XML
     {
         struct Visitor;
+        struct VisitableBase;
 
         struct DOMTree
         {
             // an owning pointer to a value
             typedef std::unique_ptr<VisitableBase>    value_type;
 
-            // a queue of values
-            typedef std::queue<value_type>        container_type;
+            // a vector of values
+            typedef std::vector<value_type>        container_type;
 
             // a rapidxml parser for utf-8 text
-            typedef char                  char_type
+            typedef char                  char_type;
             typedef std::vector<char_type>        buffer_type;
             typedef rapidxml::xml_document<char_type> document_type;
 
@@ -30,6 +30,8 @@ namespace Node
             DOMTree(const char * data, std::size_t len);
 
             void visit(Node::XML::Visitor & visitor) const;
+
+            std::unique_ptr<VisitableBase> wrap_node(rapidxml::xml_node<> * node);
 
             // the backing store for the attribute data - element names etc
             buffer_type m_buf;

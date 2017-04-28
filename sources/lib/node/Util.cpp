@@ -1,5 +1,5 @@
 #if defined(HAVE_CONFIG_H)
-#include "config.h"
+    #include "config.h"
 #endif
 
 #include <cstring>
@@ -17,8 +17,9 @@ bool
 Node::Util::match_string(const char * rhs, std::size_t rhs_len, const char * name, std::size_t name_len)
 {
     if(rhs_len != name_len)
+    {
         return false;
-
+    }
     return Node::Util::match_string_prefix(rhs,rhs_len,name,name_len);
 }
 
