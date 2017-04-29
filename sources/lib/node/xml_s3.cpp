@@ -4,35 +4,68 @@
     #include "config.h"
 #endif
 
-
-// RapidXML
-#include "rapidxml/rapidxml.hpp"
-
 // Boost
-
+#include <boost/filesystem.hpp>
+#include <boost/iostreams/device/mapped_file.hpp>
 
 namespace Node
 {
     namespace XML
     {
-        std::string make_value(const rapidxml::xml_node<> * v)
+        static constexpr const char * wrong_region = "The authorization header is malformed; the region '";
+        static constexpr const size_t wrong_region_sz = std::strlen(wrong_region);
+
+        static constexpr const char * auth_header_malformed = "AuthorizationHeaderMalformed";
+        static constexpr const size_t auth_header_malformed_sz = std::strlen(auth_header_malformed);
+
+        block::block(const rapidxml::xml_node<> * v)
+            : m_ptr{v->value()}
+            , m_len{v->value_size()}
+        {}
+        block::block(const char * ptr, size_t len)
+            : m_ptr{ptr}
+            , m_len{len}
+        {}
+
+        std::ostream & operator <<(std::ostream & out, const block & rhs)
         {
-            struct value
-            {
-                std::string m_value;
-                value(const rapidxml::xml_node<> * v)
-                    : m_value{v->value(),v->value_size()}
-                {}
-                value()
-                    : m_value{}
-                {}
-            };
-            value val{v};
-            return val.m_value;
+            out.write(rhs.m_ptr,rhs.m_len);
+            return out;
         }
 
-        ListBucketResult::
-        ListBucketResult()
+        bool starts_with_wrong_region(const block & rhs)
+        {
+            static const block wrong_region_block{wrong_region,wrong_region_sz};
+            return starts_with(rhs,wrong_region_block);
+        }
+
+        bool starts_with_auth_header_malformed(const block & rhs)
+        {
+            static const block auth_header_malformed_block{auth_header_malformed,auth_header_malformed_sz};
+            return starts_with(rhs,auth_header_malformed_block);
+        }
+
+        bool starts_with(const block & rhs, const block & lhs)
+        {
+            size_t prefix_sz = (rhs.m_len > lhs.m_len) ? lhs.m_len : rhs.m_len;
+            return (0== memcmp(rhs.m_ptr,lhs.m_ptr,prefix_sz));
+        }
+
+        bool load_file(std::string & dest, const std::string & filename)
+        {
+            if(!boost::filesystem::exists(filename))
+            {
+                return false;
+            }
+            boost::iostreams::mapped_file region(
+                filename,
+                boost::iostreams::mapped_file::readonly
+            );
+            dest.assign(region.const_data(),region.size());
+            return true;
+        }
+
+        ListBucketResult::ListBucketResult()
             : m_objects{0}
             , m_errors{0}
             , m_bucket_name{}
@@ -44,8 +77,18 @@ namespace Node
             ,m_owner_id{}
             ,m_auth_failures{}
         {}
-        ListBucketResult::ListBucketResult(std::string xml)
-            :ListBucketResult{}
+
+        ListBucketResult::ListBucketResult(char * xml)
+            : m_objects{0}
+            , m_errors{0}
+            , m_bucket_name{}
+            , m_key{}
+            ,m_last_modified_at{}
+            ,m_etag{}
+            ,m_size{}
+            ,m_owner_name{}
+            ,m_owner_id{}
+            ,m_auth_failures{}
         {
             try
             {
@@ -57,7 +100,7 @@ namespace Node
                 | rapidxml::parse_comment_nodes
                 | rapidxml::parse_xhtml_entity_translation
                 | rapidxml::parse_validate_closing_tags
-                >(&xml[0]);
+                >(xml);
                 size_t count = 0;
                 for(auto root = doc.first_node("ListBucketResult"); root; root = root->next_sibling())
                 {
@@ -79,13 +122,13 @@ namespace Node
                                                 {
                                                     if(auto owner_name = owner->first_node("DisplayName"))
                                                     {
-                                                        m_bucket_name.emplace_back(make_value(bucket_name));
-                                                        m_key.emplace_back(make_value(key));
-                                                        m_last_modified_at.emplace_back(make_value(last_modified_at));
-                                                        m_etag.emplace_back(make_value(etag));
-                                                        m_size.emplace_back(make_value(size));
-                                                        m_owner_name.emplace_back(make_value(owner_name));
-                                                        m_owner_id.emplace_back(make_value(owner_id));
+                                                        m_bucket_name.emplace_back(bucket_name);
+                                                        m_key.emplace_back(key);
+                                                        m_last_modified_at.emplace_back(last_modified_at);
+                                                        m_etag.emplace_back(etag);
+                                                        m_size.emplace_back(size);
+                                                        m_owner_name.emplace_back(owner_name);
+                                                        m_owner_id.emplace_back(owner_id);
                                                         ++count;
                                                     }
                                                 }
@@ -101,23 +144,24 @@ namespace Node
                 count = 0;
                 for(auto root = doc.first_node("Error"); root; root = root->next_sibling())
                 {
-                    if(auto code = root->first_node("Code"))
+                    if(const auto code = root->first_node("Code"))
                     {
-                        if(make_value(code) == "AuthorizationHeaderMalformed")
+                        auto code_block = code;
+                        if(starts_with_auth_header_malformed(code_block))
                         {
-                            if(auto message = root->first_node("Message"))
+                            if(const auto message = root->first_node("Message"))
                             {
-                                if(auto region = root->first_node("Region"))
+                                if(const auto region = root->first_node("Region"))
                                 {
-                                    if(auto request_id= root->first_node("RequestId"))
+                                    if(const auto request_id= root->first_node("RequestId"))
                                     {
-                                        if(auto host_id= root->first_node("HostId"))
+                                        if(const auto host_id= root->first_node("HostId"))
                                         {
-                                            m_auth_failures.m_code.emplace_back(make_value(code));
-                                            m_auth_failures.m_message.emplace_back(make_value(message));
-                                            m_auth_failures.m_request_id.emplace_back(make_value(request_id));
-                                            m_auth_failures.m_host_id.emplace_back(make_value(host_id));
-                                            m_auth_failures.m_region.emplace_back(make_value(region));
+                                            m_auth_failures.m_code.emplace_back(code_block);
+                                            m_auth_failures.m_message.emplace_back(message);
+                                            m_auth_failures.m_request_id.emplace_back(request_id);
+                                            m_auth_failures.m_host_id.emplace_back(host_id);
+                                            m_auth_failures.m_region.emplace_back(region);
                                             ++count;
                                         }
                                     }
