@@ -3,7 +3,7 @@ AM_DISTCHECK_CONFIGURE_FLAGS = --with-ccache=yes
 
 ACLOCAL_AMFLAGS = -I m4
 
-BUILT_SOURCES = ChangeLog
+BUILT_SOURCES = ChangeLog VERSION
 
 SUBDIRS = \
  doc \
