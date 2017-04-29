@@ -78,10 +78,8 @@ namespace Node
             ,m_auth_failures{}
         {}
 
-        ListBucketResult::ListBucketResult(char * xml)
-            : m_objects{0}
-            , m_errors{0}
-            , m_bucket_name{}
+        ListBucketResult::ListBucketResult()
+            : m_bucket_name{}
             , m_key{}
             ,m_last_modified_at{}
             ,m_etag{}
@@ -89,6 +87,14 @@ namespace Node
             ,m_owner_name{}
             ,m_owner_id{}
             ,m_auth_failures{}
+
+            ,m_nobjects{0}
+            ,m_nerrors{0}
+
+        {}
+
+        ListBucketResult::ListBucketResult(char * xml)
+            : ListBucketResult{}
         {
             try
             {
@@ -140,7 +146,7 @@ namespace Node
                         }
                     }
                 }
-                m_objects = count;
+                m_nobjects = count;
                 count = 0;
                 for(auto root = doc.first_node("Error"); root; root = root->next_sibling())
                 {
@@ -170,7 +176,8 @@ namespace Node
                         }
                     }
                 }
-                m_errors = count;
+                m_nerrors = count;
+                count = 0;
             }
             catch(const rapidxml::parse_error & e)
             {

@@ -20,7 +20,7 @@ int main(int argc, char * argv[])
         }
     }
     Node::XML::ListBucketResult obj{&xml[0]};
-    auto count = obj.m_objects;
+    auto count = obj.m_nobjects;
     while(count)
     {
         --count;
@@ -31,7 +31,7 @@ int main(int argc, char * argv[])
         std::cout << obj.m_size.at(count) << " ";
         std::cout << obj.m_etag.at(count) << "\n";
     }
-    count = obj.m_errors;
+    count = obj.m_nerrors;
     const auto & auth_failures = obj.m_auth_failures;
     while(count)
     {

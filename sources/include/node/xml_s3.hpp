@@ -44,8 +44,6 @@ namespace Node
         struct ListBucketResult
             : private boost::noncopyable
         {
-            size_t m_objects;
-            size_t m_errors;
             std::vector<block> m_bucket_name;
             std::vector<block> m_key;
             std::vector<block> m_last_modified_at;
@@ -54,6 +52,11 @@ namespace Node
             std::vector<block> m_owner_name;
             std::vector<block> m_owner_id;
             AuthorizationHeaderMalformed m_auth_failures;
+
+
+            size_t m_nobjects;
+            size_t m_nerrors;
+
 
             ListBucketResult();
             explicit ListBucketResult(char * xml);
