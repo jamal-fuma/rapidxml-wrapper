@@ -36,17 +36,18 @@ int main(int argc, char * argv[])
     while(count)
     {
         --count;
-        const auto & msg = auth_failures.m_message.at(count);
-        if(Node::XML::starts_with_wrong_region(msg))
+        const auto & m = auth_failures.m_message.at(count);
+        const auto & r = auth_failures.m_region.at(count);
+        if(Node::XML::starts_with_wrong_region(m))
         {
-            std::cout << "Wrong Region - retry with " << auth_failures.m_region.at(count) << "\n";
+            std::cout << "Wrong Region - retry with " << r << "\n";
             continue;
         }
         std::cout << auth_failures.m_host_id.at(count) << " ";
         std::cout << auth_failures.m_request_id.at(count) << " ";
         std::cout << auth_failures.m_code.at(count) << " ";
-        std::cout << msg << " ";
-        std::cout << auth_failures.m_region.at(count) << "\n";
+        std::cout << m << " ";
+        std::cout << r << "\n";
     }
     count = obj.m_nbuckets;
     const auto & buckets = obj.m_buckets;
