@@ -48,5 +48,15 @@ int main(int argc, char * argv[])
         std::cout << msg << " ";
         std::cout << auth_failures.m_region.at(count) << "\n";
     }
+    count = obj.m_nbuckets;
+    const auto & buckets = obj.m_buckets;
+    while(count)
+    {
+        --count;
+        std::cout << buckets.m_owner_name.at(count) << " ";
+        std::cout << buckets.m_owner_id.at(count) << " ";
+        std::cout << "https://" << buckets.m_bucket_name.at(count) << ".s3.amazonaws.com/" << " ";
+        std::cout << buckets.m_created_at.at(count) << "\n";
+    }
     return EXIT_SUCCESS;
 }

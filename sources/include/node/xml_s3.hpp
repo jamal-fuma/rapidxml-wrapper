@@ -41,22 +41,35 @@ namespace Node
             AuthorizationHeaderMalformed() = default;
         };
 
+        struct ListAllMyBucketsResult
+            : private boost::noncopyable
+        {
+            std::vector<block> m_bucket_name;
+            std::vector<block> m_created_at;
+            std::vector<block> m_owner_name;
+            std::vector<block> m_owner_id;
+
+            ListAllMyBucketsResult();
+        };
+
         struct ListBucketResult
             : private boost::noncopyable
         {
             std::vector<block> m_bucket_name;
+
             std::vector<block> m_key;
             std::vector<block> m_last_modified_at;
             std::vector<block> m_etag;
             std::vector<block> m_size;
+
             std::vector<block> m_owner_name;
             std::vector<block> m_owner_id;
             AuthorizationHeaderMalformed m_auth_failures;
-
+            ListAllMyBucketsResult m_buckets;
 
             size_t m_nobjects;
             size_t m_nerrors;
-
+            size_t m_nbuckets;
 
             ListBucketResult();
             explicit ListBucketResult(char * xml);

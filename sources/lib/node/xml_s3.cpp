@@ -65,17 +65,11 @@ namespace Node
             return true;
         }
 
-        ListBucketResult::ListBucketResult()
-            : m_objects{0}
-            , m_errors{0}
-            , m_bucket_name{}
-            , m_key{}
-            ,m_last_modified_at{}
-            ,m_etag{}
-            ,m_size{}
+        ListAllMyBucketsResult::ListAllMyBucketsResult()
+            : m_bucket_name{}
+            ,m_created_at{}
             ,m_owner_name{}
             ,m_owner_id{}
-            ,m_auth_failures{}
         {}
 
         ListBucketResult::ListBucketResult()
@@ -87,10 +81,10 @@ namespace Node
             ,m_owner_name{}
             ,m_owner_id{}
             ,m_auth_failures{}
-
+            ,m_buckets{}
             ,m_nobjects{0}
             ,m_nerrors{0}
-
+            ,m_nbuckets{0}
         {}
 
         ListBucketResult::ListBucketResult(char * xml)
@@ -177,6 +171,37 @@ namespace Node
                     }
                 }
                 m_nerrors = count;
+                count = 0;
+                for(auto root = doc.first_node("ListAllMyBucketsResult"); root; root = root->next_sibling())
+                {
+                    if(auto owner = root->first_node("Owner"))
+                    {
+                        if(auto owner_id = owner->first_node("ID"))
+                        {
+                            if(auto owner_name = owner->first_node("DisplayName"))
+                            {
+                                if(auto buckets = root->first_node("Buckets"))
+                                {
+                                    for(auto bucket = buckets->first_node("Bucket"); bucket; bucket = bucket->next_sibling())
+                                    {
+                                        if(auto bucket_name = bucket->first_node("Name"))
+                                        {
+                                            if(auto created_at = bucket->first_node("CreationDate"))
+                                            {
+                                                m_buckets.m_bucket_name.emplace_back(bucket_name);
+                                                m_buckets.m_created_at.emplace_back(created_at);
+                                                m_buckets.m_owner_name.emplace_back(owner_name);
+                                                m_buckets.m_owner_id.emplace_back(owner_id);
+                                                ++count;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                m_nbuckets = count;
                 count = 0;
             }
             catch(const rapidxml::parse_error & e)
