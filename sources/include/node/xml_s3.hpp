@@ -8,7 +8,7 @@
 #include <boost/core/noncopyable.hpp>
 
 // RapidXML
-#include "rapidxml/rapidxml.hpp"
+#include <rapidxml/rapidxml.hpp>
 
 
 namespace Node
