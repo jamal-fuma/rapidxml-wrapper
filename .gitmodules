@@ -5,5 +5,5 @@
 	path = scripts
 	url = git@github.com:jamal-fuma/fuma_build_scripts.git
 [submodule "build_aux"]
-	path = build_aux
+	path = build-aux
 	url = git@github.com:jamal-fuma/fuma_build_aux.git
