@@ -86,7 +86,6 @@ AX_BOOST_REGEX
 AX_BOOST_FILESYSTEM
 AX_BOOST_IOSTREAMS
 
-# generate the output
 AC_CONFIG_FILES([Makefile
                  doc/Makefile
                  assets/Makefile
