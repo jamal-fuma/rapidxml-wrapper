@@ -24,7 +24,7 @@ AC_CONFIG_SRCDIR([Makefile.am])
 AM_INIT_AUTOMAKE([1.10 no-define foreign tar-pax subdir-objects])
 
 # enable maintainer mode
-AM_MAINTAINER_MODE
+AM_MAINTAINER_MODE([enable])
 # allow for silent builds in older version of automake 12.04 lts cough
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES])
 
