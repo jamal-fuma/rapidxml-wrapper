@@ -12,11 +12,14 @@ AC_INIT(m4_translit(project_name_str,[ ], [_]),
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
 
+
+
+
+
 # location of additional build machinary
 AC_CONFIG_HEADERS([config.h])
 AC_SUBST([ACLOCAL_AMFLAGS], ["-I $ac_macro_dir \${ACLOCAL_FLAGS} --install"])
 AC_CONFIG_SRCDIR([Makefile.am])
-
 # setup automake
 AM_INIT_AUTOMAKE([1.10 no-define foreign tar-pax subdir-objects])
 
@@ -35,8 +38,8 @@ AC_DEFUN([AC_LIBTOOL_F77], [:])
 # use platform extensions
 AC_USE_SYSTEM_EXTENSIONS
 AX_CXX_COMPILE_STDCXX_14([noext],[mandatory])
-
 # Checks for programs.
+
 AC_PROG_CPP
 AC_PROG_CC
 AC_PROG_CXX
@@ -45,15 +48,14 @@ AC_PROG_SED
 AC_PROG_AWK
 AC_PROG_INSTALL
 AC_PROG_LN_S
+
 # prefer gmake to bsd make
 AC_CHECK_PROGS([MAKE], [gmake make])
 AC_PROG_MKDIR_P
 AC_PROG_LIBTOOL
 AC_MINGW32
-
 # check if we can format code nicely
 FUMA_AX_ASTYLE([2.05])
-
 # Check if we can use compiler caching
 FUMA_AX_CCACHE
 # check if we can do code coverage
@@ -75,7 +77,6 @@ AC_CHECK_HEADERS([limits.h execinfo.h ucontext.h])
 #
 # fixme: mingw requires -mthreads in PTHREAD_CFLAGS
 AX_PTHREAD
-
 # pull in boost
 AX_BOOST_BASE([1.48],, [AC_MSG_ERROR([Boost was not found in your system])])
 AX_BOOST_SYSTEM
