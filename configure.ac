@@ -25,7 +25,7 @@ AM_MAINTAINER_MODE
 # allow for silent builds in older version of automake 12.04 lts cough
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES])
 
-dnl disable unnecessary compiler checks
+# disable unnecessary compiler checks
 AC_DEFUN([AC_PROG_F77], [:])
 AC_DEFUN([AC_PROG_FC], [:])
 AC_DEFUN([AC_PROG_OBJC], [:])
@@ -45,7 +45,7 @@ AC_PROG_SED
 AC_PROG_AWK
 AC_PROG_INSTALL
 AC_PROG_LN_S
-dnl prefer gmake to bsd make
+# prefer gmake to bsd make
 AC_CHECK_PROGS([MAKE], [gmake make])
 AC_PROG_MKDIR_P
 AC_PROG_LIBTOOL
