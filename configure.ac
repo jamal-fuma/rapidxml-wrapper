@@ -31,9 +31,9 @@ m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 # disable unnecessary compiler checks
 AC_DEFUN([AC_PROG_F77], [:])
 AC_DEFUN([AC_PROG_FC], [:])
+AC_DEFUN([AC_LIBTOOL_F77], [:])
 AC_DEFUN([AC_PROG_OBJC], [:])
 AC_DEFUN([AC_PROG_OBJCCPP], [:])
-AC_DEFUN([AC_LIBTOOL_F77], [:])
 
 # use platform extensions
 AC_USE_SYSTEM_EXTENSIONS
