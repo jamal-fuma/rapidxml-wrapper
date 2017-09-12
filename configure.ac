@@ -77,7 +77,7 @@ AC_CHECK_HEADERS([limits.h execinfo.h ucontext.h])
 #
 # fixme: mingw requires -mthreads in PTHREAD_CFLAGS
 AX_PTHREAD
-# pull in boost
+# check if we can find boost
 AX_BOOST_BASE([1.62],, [AC_MSG_ERROR([Boost was not found in your system])])
 AX_BOOST_SYSTEM
 AX_BOOST_PROGRAM_OPTIONS
